@@ -1,0 +1,106 @@
+---
+title: "Práctica 2"
+author: "Alejandro Guijarro - Sergio Duarte"
+date: "10/5/2020"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 5
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+---
+
+# 1.Introducción y Contexto
+
+El presente documento recoge las respuestas a los puntos recogidos en la Práctica 2 de la asignatura Tipología y Ciclo de Vida de los Datos. El informe se ha elaborado siguiendo la estructura propuesta en el enunciado de la práctica.
+
+Se ha optado en esta segunda práctica por continuar con el tema desarrollado en la práctica 1, centrada en la extracción de datos relacionados con el virus COVID-19.
+Se toma para ello como punto de partida la estructura para extracción de datos generada en la Práctica 1.
+
+Los entornos web seleccionados para la extracción de los datos citados son:
+•	https://www.worldometers.info/coronavirus/  estadísticas de individuos infectados.
+•	https://www.ree.es/es --> datos de consumo eléctrico (proporcionados por Red Eléctrica) en España.
+•	https://covid19.isciii.es/  estadísticos sobre la evolución de los casos de COVID-19 por CCAA.
+
+
+# 2. Descripción del Dataset
+
+Dispondremos en la práctica de dos familias de dataframes, definidas con objeto de interpretar el impacto del COVID-19 en el consumo energético en España, centrado en los últimos meses en los que los efectos de la pandema han alcanzado su máximo nivel de expansión. 
+A través de datos sobre la evolución del virus en la población, junto con registros de consumo energético proporcionados por Red Electrica, se buscará mostrar cual ha sido dicho impacto en el sector.
+
+Se muestra a continuación una breve descripción de los dataset obtenidos en la Práctica 1, utilizados en esta segunda práctica para el desarrollo de la misma.
+
+### Consumo_elect_COVID_2020 & Consumo elect_COVID_2019
+
+Registro con los datos de consumo energético en España para los meses de enero, febrero, marzo, abril, en años 2019 y 2020.
+
+Ev_demanda20:dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2020. Datos exportados en fichero .csv Consumo_elect_COVID_2020.csv.
+
+Ev_demanda2019:dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2019. Datos exportados en fichero .csv Consumo_elect_COVID_2019.csv.
+
+Generación de ambos dataset mediante la ejecución del script “API - Red Electrica.py”
+
+### Casos_COVID_mundo
+
+Registro de datos de coronavirus a nivel mundial. El dataset está agrupado por fecha, número de casos, fallecidos, recuperados y datos de hospitalizaciones, entre otros datos relevantes que nos ayudan a ser conscientes de lo que esta pandemia está suponiendo para el ser humano. Cabe destacar que este conjunto de datos no resulta relevante para el análisis que hacemos sobre el consumo eléctrico, pero pensamos que puede servir como una pequeña introducción o preámbulo para presentar los demás datos.
+ 
+Datos exportados al fichero “Casos_COVID_mundo.csv” tras la ejecución del script “Casos_COVID_mundo.py”
+
+### Casos_COVID_ESPAÑA
+
+Registro de datos de coronavirus en España y agrupados por CCAA, número de casos totales, casos en las últimas 24h y su incidencia en los últimos 14 días. 
+
+Los datos son exportados al fichero “Casos_COVID_ESPAÑA.csv” tras la ejecución del script “Casos_COVID_Espana.py”
+
+### Casos_COVID_ESPAÑA_acumulado
+
+En este archivo se recogen datos obtenidos mediante descarga directa desde la misma web a la que se le hace el raspado con el script “Casos_COVID_Espana.py”. En este punto hay que aclarar que se ha optado por el uso de estos datos en el análisis dada la imposibilidad de obtener datos coherentes con los que se aprecian en el código html de la web. Se han incluido ambos scripts en base a la recomendación del profesor encargado de la asignatura.
+
+
+
+
+# 3. Integración y Selección de los datos de interés a analizar
+
+## Datos consumo energético
+
+Extraídos a partir de la aplicación API disponible en la plataforma REData de Red Eléctrica: https://www.ree.es/es, 
+El conjunto de datos seleccionado mediante la request lanzada a la API se ha limitado a la evolución de la demanda para los meses de enero-febrero-marzo-abril. 
+```{r eval=FALSE}
+r = requests.get('https://apidatos.ree.es/es/datos/demanda/
+#indicamos los datos, en este caso evolución de demanda
+  evolucion?
+#rango temporal para el que solicitamos los datos
+  start_date=2020-01-01T00:00&end_date=2020-0325T22:00&
+#fracción temporal en la que queremos visualizar los datos (diario)
+  time_trunc=day&
+#Zona geográfica sobre la que aplicaremos la extracción de datos.
+  geo_limit=peninsular&
+  geo_ids=8741')
+```
+
+## Evolución COVID-19 en España
+
+# 3. Limpieza de los datos
+
+## 3.1 Ceros Elementos Vacíos
+
+## 3.2 Identificación y tratamiento de valores extremos
+
+# 4. Análisis de los datos
+
+## 4.1 Selección e grupos de datos a analizar
+
+## 4.2 Comprobación de normalidad y homogenidad de la varianza
+
+## 4.3 Aplicación de pruebas estadísticas
+
+# 5. Representación de los resultados
+
+# 6. Resolución del problema
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
