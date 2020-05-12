@@ -1,17 +1,28 @@
 ---
-title: "Práctica 2"
-author: "Alejandro Guijarro - Sergio Duarte"
+title: "Tipología y ciclo de vida de los datos: Práctica 2 - Pre-Post Procesado de datos"
+author: "Alejandro Guijarro - Sergio Roque Duarte Pérez"
 date: "10/5/2020"
 output: 
   html_document:
-    toc: true
-    toc_depth: 5
-    toc_float:
-      collapsed: false
-      smooth_scroll: true
+    highlight: default
+    number_sections: yes
+    theme: cosmo
+    toc: yes
+    toc_depth: 2
+    includes:
+      in_header: header.html
+  word_document: default
+  pdf_document:
+    highlight: zenburn
+    toc: yes
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+******
 # 1.Introducción y Contexto
+******
 
 El presente documento recoge las respuestas a los puntos recogidos en la Práctica 2 de la asignatura Tipología y Ciclo de Vida de los Datos. El informe se ha elaborado siguiendo la estructura propuesta en el enunciado de la práctica.
 
@@ -19,9 +30,12 @@ Se ha optado en esta segunda práctica por continuar con el tema desarrollado en
 Se toma para ello como punto de partida la estructura para extracción de datos generada en la Práctica 1.
 
 Los entornos web seleccionados para la extracción de los datos citados son:
-•	https://www.worldometers.info/coronavirus/  estadísticas de individuos infectados.
-•	https://www.ree.es/es --> datos de consumo eléctrico (proporcionados por Red Eléctrica) en España.
-•	https://covid19.isciii.es/  estadísticos sobre la evolución de los casos de COVID-19 por CCAA.
+
+•	https://www.worldometers.info/coronavirus/: estadísticas de individuos infectados.
+
+•	https://www.ree.es/es: datos de consumo eléctrico (proporcionados por Red Eléctrica) en España.
+
+•	https://covid19.isciii.es/: estadísticos sobre la evolución de los casos de COVID-19 por CCAA.
 
 
 # 2. Descripción del Dataset
@@ -100,7 +114,5 @@ r = requests.get('https://apidatos.ree.es/es/datos/demanda/
 # 6. Resolución del problema
 
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
