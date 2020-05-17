@@ -7,8 +7,11 @@ output:
     highlight: default
     number_sections: yes
     theme: cosmo
-    toc: yes
-    toc_depth: 2
+    toc: true
+    toc_depth: 5
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
     includes:
       in_header: header.html
   word_document: default
@@ -21,7 +24,7 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 ******
-# 1.Introducción y Contexto
+# Introducción y Contexto
 ******
 
 El presente documento recoge las respuestas a los puntos recogidos en la Práctica 2 de la asignatura Tipología y Ciclo de Vida de los Datos. El informe se ha elaborado siguiendo la estructura propuesta en el enunciado de la práctica.
@@ -37,11 +40,9 @@ Los entornos web seleccionados para la extracción de los datos citados son:
 
 •	https://covid19.isciii.es/: estadísticos sobre la evolución de los casos de COVID-19 por CCAA.
 
+El objetivo de dicho estudio es el de evaluar el impacto de la propagación del virus COVID-19 en el consumo energético. Se plantea dicho estudio a partir del análisis de los datos disponibles de propagación y afectados por el virus, junto con los registros de consumo energético en España.
 
-# 2. Descripción del Dataset
-
-Dispondremos en la práctica de dos familias de dataframes, definidas con objeto de interpretar el impacto del COVID-19 en el consumo energético en España, centrado en los últimos meses en los que los efectos de la pandema han alcanzado su máximo nivel de expansión. 
-A través de datos sobre la evolución del virus en la población, junto con registros de consumo energético proporcionados por Red Electrica, se buscará mostrar cual ha sido dicho impacto en el sector.
+## Descripción del Dataset
 
 Se muestra a continuación una breve descripción de los dataset obtenidos en la Práctica 1, utilizados en esta segunda práctica para el desarrollo de la misma.
 
@@ -55,64 +56,197 @@ Ev_demanda2019:dataset incluyendo datos de demanda eléctrica diaria entre meses
 
 Generación de ambos dataset mediante la ejecución del script “API - Red Electrica.py”
 
-### Casos_COVID_mundo
+Importamos los datasets.
+```{r }
+elect_2020<-read.csv2("Consumo_elect_COVID_2020.csv",header=T,stringsAsFactors=FALSE, fileEncoding="latin1",sep=",",dec=".")
 
-Registro de datos de coronavirus a nivel mundial. El dataset está agrupado por fecha, número de casos, fallecidos, recuperados y datos de hospitalizaciones, entre otros datos relevantes que nos ayudan a ser conscientes de lo que esta pandemia está suponiendo para el ser humano. Cabe destacar que este conjunto de datos no resulta relevante para el análisis que hacemos sobre el consumo eléctrico, pero pensamos que puede servir como una pequeña introducción o preámbulo para presentar los demás datos.
- 
-Datos exportados al fichero “Casos_COVID_mundo.csv” tras la ejecución del script “Casos_COVID_mundo.py”
+elect_2019<-read.csv2("Consumo_elect_COVID_2019.csv",header=T,stringsAsFactors=FALSE, fileEncoding="latin1",sep=",",dec=".")
+```
 
 ### Casos_COVID_ESPAÑA
+
+<span style="color:red"> *SERGIO, completar para dataframe de casos covid*</span>
 
 Registro de datos de coronavirus en España y agrupados por CCAA, número de casos totales, casos en las últimas 24h y su incidencia en los últimos 14 días. 
 
 Los datos son exportados al fichero “Casos_COVID_ESPAÑA.csv” tras la ejecución del script “Casos_COVID_Espana.py”
 
-### Casos_COVID_ESPAÑA_acumulado
-
-En este archivo se recogen datos obtenidos mediante descarga directa desde la misma web a la que se le hace el raspado con el script “Casos_COVID_Espana.py”. En este punto hay que aclarar que se ha optado por el uso de estos datos en el análisis dada la imposibilidad de obtener datos coherentes con los que se aprecian en el código html de la web. Se han incluido ambos scripts en base a la recomendación del profesor encargado de la asignatura.
-
-
+Importamos el dataset.
+```{r }
+```
 
 
-# 3. Integración y Selección de los datos de interés a analizar
+
+# Integración y Selección de los datos de interés a analizar
 
 ## Datos consumo energético
 
 Extraídos a partir de la aplicación API disponible en la plataforma REData de Red Eléctrica: https://www.ree.es/es, 
 El conjunto de datos seleccionado mediante la request lanzada a la API se ha limitado a la evolución de la demanda para los meses de enero-febrero-marzo-abril. 
-```{r eval=FALSE}
+
 r = requests.get('https://apidatos.ree.es/es/datos/demanda/
-#indicamos los datos, en este caso evolución de demanda
+indicamos los datos, en este caso evolución de demanda
   evolucion?
-#rango temporal para el que solicitamos los datos
+rango temporal para el que solicitamos los datos
   start_date=2020-01-01T00:00&end_date=2020-0325T22:00&
-#fracción temporal en la que queremos visualizar los datos (diario)
+fracción temporal en la que queremos visualizar los datos (diario)
   time_trunc=day&
-#Zona geográfica sobre la que aplicaremos la extracción de datos.
+Zona geográfica sobre la que aplicaremos la extracción de datos.
   geo_limit=peninsular&
   geo_ids=8741')
-```
 
 ## Evolución COVID-19 en España
 
-# 3. Limpieza de los datos
+<span style="color:red"> *SERGIO, completar, similar a práctica 1?*</span>
 
-## 3.1 Ceros Elementos Vacíos
+# Limpieza de los datos
 
-## 3.2 Identificación y tratamiento de valores extremos
+## Ceros Elementos Vacíos
 
-# 4. Análisis de los datos
+En cuanto al tratamiento de elementos vacíos, se plantea en este apartado un barrido de los dataframes que se analizarán posteriormente a fin de identificar, o descartar la presencia de dichos elementos vacíos que puedan repercutir negativamente en la interpretación y tratamiento de los datos.
 
-## 4.1 Selección e grupos de datos a analizar
+```{r }
+NA_Noff_elect2020 <-sapply(elect_2020, function(y) sum(length(which(is.na(y))))) #count de campos NA para cada variable en el dataframe
+NA_Noff_elect2020 <- data.frame(NA_Noff_elect2020) #generamos un dataframe para la visualización del total de NA "valores perdidos" por variable
 
-## 4.2 Comprobación de normalidad y homogenidad de la varianza
+NA_Noff_elect2019 <-sapply(elect_2019, function(y) sum(length(which(is.na(y))))) #count de campos NA para cada variable en el dataframe
+NA_Noff_elect2019 <- data.frame(NA_Noff_elect2019) #generamos un dataframe para la visualización del total de NA "valores perdidos" por variable
+```
 
-## 4.3 Aplicación de pruebas estadísticas
+<span style="color:red"> *SERGIO, añadir para dataframes correspondientes, misma conclusión, no tendremos elementos vacíos*</span>
 
-# 5. Representación de los resultados
+Se presenta a continuación el resultado del preprocesado de los dataframes para identificación de elementos vacíos.
+```{r }
+NA_Noff_elect2020
+NA_Noff_elect2019
+```
+
+Vemos como los dataframes no contienen en ningún caso elementos vacíos --> debido a como se ha podido extraer la información de los entornos web.
+
+mostrar algo de planteamiento de cómo se habrían tratado un dataframe en case de identificar elementos nulos --> identificación de datos y elminicación de los rows correspondientes - Imputación mediante métodos probabilísticos (kNN nearest neighbo)
+
+Aplicamos la función "kNN" a las variables "BPD" y "AD", con un k=3:
+```{r ,eval=FALSE}
+#library("VIM")
+#dataframe=kNN(df,variable=c("A","B"),k=3)
+```
+
+
+## Identificación y tratamiento de valores extremos
+
+Para la identificación de valores extremos en los dataframes objeto del análisis, procedemos a la presentación de los datos mediante un diagrama de cajas para la variable en cuestión.
+**elect_2019**
+```{r }
+boxplot.stats(elect_2019$ev_demanda)$out
+```
+```{r , echo=FALSE}
+boxplot(elect_2019$ev_demanda,main="graph - ev_demanda2019")
+```
+**elect_2020**
+```{r }
+boxplot.stats(elect_2020$ev_demanda)$out
+```
+```{r , echo=FALSE}
+boxplot(elect_2020$ev_demanda,main="graph - ev_demanda2020")
+```
+
+<span style="color:red"> *SERGIO, completar para dataframes correspondientes, misma conclusión, no habrá valores extremos*</span>
+
+# Análisis de los datos
+
+## Selección de los grupos de datos
+
+Para la evaluación de los dataset con el registro de demanda energética, estaremos interesados en mostrar una comparavia de la evolución de dicha demanda a fin de identificar varaciaciones significativas entre 2020 y 2019. 
+
+Una de las primera particularidades que vemos es que el año 2019 es bisiesto, conteniendo un día más que puede dar lugar a errores en el desarrollo de dicha comparativa. Procederemos a eliminar el registro correspondiente al año 2020 (mes-febrero, día-29), y tener de esta forma dos dataframes lo más homogéneos posible y con un mismo número de registros.
+
+```{r }
+subset(elect_2020, day==29 & month==2)
+```
+
+Identificado la fila que contiene los datos correspondientes al mes de febrero (día 29), del 2020, procedemos a eliminar dicho registro y generar un único dataframe que contenga los registros de ambos años, 2020 y 2019, y que nos permita llevar a cabo los posteriores estudios.
+
+```{r }
+elect_2020_feb=elect_2020[-c(60),] #eliminamos registro del año bisiesto.
+rownames(elect_2020_feb)=NULL #redefinimos indices en dataframe 
+elect=elect_2020_feb #generamos dataframe elect con datos de demanda para años 2020 y 2019
+colnames(elect)[colnames(elect)=="ev_demanda"]="ev_demanda_2020"
+elect$ev_demanda2019=elect_2019$ev_demanda
+drop=names(elect) %in% c("date")
+elect=elect[,!drop]
+```
+
+<span style="color:red"> *SERGIO, ver si hay que desarrollar algo para el dataframe de infectados?* normal</span>
+
+## Comprobación de normalidad y homogeneidad de la varianza
+
+<span style="color:red"> *SERGIO y Alejandro, pendiente darle una vuelta a ver que test aplicamos para comprobación de normalidad-homogeneidad*</span>
+
+## Pruebas Estadísticas
+
+<span style="color:red"> *SERGIO y Alejandro*</span>
+
+Cosas a revisar
+
+- Regresión logística
+$Ev_demanda(afectados covid)$
+threshold, demanda baja (por debajo de la media de 2019)
+
+- Regresión lineal
+$Ev_demanda(afectados covid)$
+
+- Contraste de hipótesis??
+
+# Representación de los resultados
+
+**Evolución demanda 2019-2020**
+```{r , warning=FALSE}
+plot(elect$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect$ev_demanda2019,type="overplotted",pch=2,col="red")
+legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+elect_jan=elect[elect$month==1,]
+elect_feb=elect[elect$month==2,]
+elect_mar=elect[elect$month==3,]
+elect_apr=elect[elect$month==4,]
+```
+
+
+**Evolución demanda 2019-2020 (Enero)**
+```{r , warning=FALSE}
+plot(elect_jan$day, elect_jan$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (January)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect_jan$day, elect_jan$ev_demanda2019,type="overplotted",pch=2,col="red")
+
+legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+```
+
+
+**Evolución demanda 2019-2020 (Febrero)**
+```{r , warning=FALSE}
+plot(elect_feb$day, elect_feb$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (February)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect_feb$day, elect_feb$ev_demanda2019,type="overplotted",pch=2,col="red")
+legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+```
+
+
+**Evolución demanda 2019-2020 (Marzo)**
+```{r , warning=FALSE}
+plot(elect_mar$day, elect_mar$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (March)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect_mar$day, elect_mar$ev_demanda2019,type="overplotted",pch=2,col="red")
+legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+```
+
+**Evolución demanda 2019-2020 (Abril)**
+```{r , warning=FALSE}
+plot(elect_apr$day, elect_apr$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (April)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect_apr$day, elect_apr$ev_demanda2019,type="overplotted",pch=2,col="red")
+legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+```
+
+<span style="color:red"> *SERGIO, resultados presentados en práctica 1*</span>
 
 # 6. Resolución del problema
 
+<span style="color:red"> *SERGIO y Alejandro*</span>
 
 
 
