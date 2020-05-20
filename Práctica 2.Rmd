@@ -22,6 +22,7 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+
 ```
 ******
 # Introducción y Contexto
@@ -65,14 +66,17 @@ elect_2019<-read.csv2("Consumo_elect_COVID_2019.csv",header=T,stringsAsFactors=F
 
 ### Casos_COVID_ESPAÑA
 
-<span style="color:red"> *SERGIO, completar para dataframe de casos covid*</span>
 
-Registro de datos de coronavirus en España y agrupados por CCAA, número de casos totales, casos en las últimas 24h y su incidencia en los últimos 14 días. 
+Registro de datos de coronavirus en España y agrupados por CCAA (CCAA), fecha de los registros (FECHA), número de casos totales (CASOS), número de test positivos para los anticuerpos (TestAc+), número de personas hospitalizadas (Hospitalizados), personas ingresadas en UCI (UCI), número de fallecidos (Fallecidos) y número de recuperados (Recuperados). 
 
-Los datos son exportados al fichero “Casos_COVID_ESPAÑA.csv” tras la ejecución del script “Casos_COVID_Espana.py”
+Los datos son exportados al fichero “Casos_COVID_ESPAÑA.csv” tras la descarga de la web del ministerio de sanidad https://cnecovid.isciii.es/covid19/#documentaci%C3%B3n-y-datos. Recordamos la imposibilidad de obtener estos datos por errores sin solución de la práctica anterior y que no se pueden obtener de otra forma. 
+
 
 Importamos el dataset.
-```{r }
+```{r message= FALSE, warning=FALSE}
+covid_espana<-read.csv("Casos_COVID_ESPAÑA.csv",header=T,sep=",", stringsAsFactors=FALSE)
+attach(covid_espana)
+
 ```
 
 
@@ -97,7 +101,7 @@ Zona geográfica sobre la que aplicaremos la extracción de datos.
 
 ## Evolución COVID-19 en España
 
-<span style="color:red"> *SERGIO, completar, similar a práctica 1?*</span>
+En cuanto a la evolución de los datos sobre los casos del COVID-19 por comunidades autónomas, obtenemos un dataset de la web https://cnecovid.isciii.es/ mediante descarga directa. El archivo contiene los datos acumulados de la evolución de los casos para las variables descritas en el apartado anterior. Estos se encuentran ordenados por comunidad autónoma y los registros parten desde el 20 de febrero de 2020 hasta el 17 de mayo del 2020 (actualidad).
 
 # Limpieza de los datos
 
@@ -113,7 +117,6 @@ NA_Noff_elect2019 <-sapply(elect_2019, function(y) sum(length(which(is.na(y)))))
 NA_Noff_elect2019 <- data.frame(NA_Noff_elect2019) #generamos un dataframe para la visualización del total de NA "valores perdidos" por variable
 ```
 
-<span style="color:red"> *SERGIO, añadir para dataframes correspondientes, misma conclusión, no tendremos elementos vacíos*</span>
 
 Se presenta a continuación el resultado del preprocesado de los dataframes para identificación de elementos vacíos.
 ```{r }
@@ -121,7 +124,54 @@ NA_Noff_elect2020
 NA_Noff_elect2019
 ```
 
-Vemos como los dataframes no contienen en ningún caso elementos vacíos --> debido a como se ha podido extraer la información de los entornos web.
+Vemos como estos dos dataframes no contienen en ningún caso elementos vacíos --> debido a como se ha podido extraer la información de los entornos web.
+
+Sin embargo, no ocurre lo mismo para el DataFrame de los casos de COVID-19.
+
+Para el conjunto de datos de los casos de COVID-19 se propone una metodología diferente a la de los datos de la API. 
+
+Primero lo que haremos es comprobar la presencia de valores vacios mediante el uso de la función summary() de las expresiones regulares de R.
+
+```{r}
+summary(covid_espana)
+```
+
+Como se puede observar, y como era de esperar ya que los datos son de tipo acumulado, hay una gran cantidad de valores NA. Para este estudio en concreto se plantea la sustitución de esos valores nulos por ceros ya que no representa ningún problema para el análisis. 
+
+Antes de sustituir los valores NAN, haremos una selección de las variables que realmente vamos a utilizar en el análisis.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+
+
+if(!require(dplyr)){
+    install.packages('dplyr', repos='http://cran.us.r-project.org')
+    library(dplyr)
+}
+```
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# Llamada a la librería necesaria para seleccionar columnas
+library(dplyr)
+
+# Filtraremos el DataFrame para evaluar solo las variables que nos interesan
+covid_espana <- select(covid_espana,FECHA, PCR.)
+
+```
+
+```{r}
+# Sustitución de valores NaN por ceros
+covid_espana[is.na(covid_espana)] <- 0
+```
+
+Una vez hecho esto comprobaremos que ahora este dataset no presenta valores NA:
+
+```{r}
+summary(covid_espana)
+```
+
+
+
+<span style="color:red"> *ALEJANDRO, a partir de aquí no se si quizás es mejor eliminar algunas de las filas del dataframe para que encajen con las de los que tu has extraido. Lo digo por lo que planteas tú a continuación.*</span>
 
 mostrar algo de planteamiento de cómo se habrían tratado un dataframe en case de identificar elementos nulos --> identificación de datos y elminicación de los rows correspondientes - Imputación mediante métodos probabilísticos (kNN nearest neighbo)
 
@@ -135,6 +185,7 @@ Aplicamos la función "kNN" a las variables "BPD" y "AD", con un k=3:
 ## Identificación y tratamiento de valores extremos
 
 Para la identificación de valores extremos en los dataframes objeto del análisis, procedemos a la presentación de los datos mediante un diagrama de cajas para la variable en cuestión.
+
 **elect_2019**
 ```{r }
 boxplot.stats(elect_2019$ev_demanda)$out
@@ -150,13 +201,22 @@ boxplot.stats(elect_2020$ev_demanda)$out
 boxplot(elect_2020$ev_demanda,main="graph - ev_demanda2020")
 ```
 
-<span style="color:red"> *SERGIO, completar para dataframes correspondientes, misma conclusión, no habrá valores extremos*</span>
+
+**Casos_COVID_ESPAÑA**
+
+```{r }
+boxplot.stats(covid_espana$CASOS)$out
+```
+```{r , echo=FALSE}
+boxplot(covid_espana$CASOS,main="graph - Casos_COVID_ESPAÑA")
+```
+
 
 # Análisis de los datos
 
 ## Selección de los grupos de datos
 
-Para la evaluación de los dataset con el registro de demanda energética, estaremos interesados en mostrar una comparavia de la evolución de dicha demanda a fin de identificar varaciaciones significativas entre 2020 y 2019. 
+Para la evaluación de los dataset con el registro de demanda energética, estaremos interesados en mostrar una comparativa de la evolución de dicha demanda a fin de identificar varaciaciones significativas entre 2020 y 2019. 
 
 Una de las primera particularidades que vemos es que el año 2019 es bisiesto, conteniendo un día más que puede dar lugar a errores en el desarrollo de dicha comparativa. Procederemos a eliminar el registro correspondiente al año 2020 (mes-febrero, día-29), y tener de esta forma dos dataframes lo más homogéneos posible y con un mismo número de registros.
 

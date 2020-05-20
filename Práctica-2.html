@@ -1586,9 +1586,10 @@ elect_2019&lt;-read.csv2(&quot;Consumo_elect_COVID_2019.csv&quot;,header=T,strin
 <div id="casos_covid_españa" class="section level3">
 <h3><span class="header-section-number">1.1.2</span> Casos_COVID_ESPAÑA</h3>
 <p><span style="color:red"> <em>SERGIO, completar para dataframe de casos covid</em></span></p>
-<p>Registro de datos de coronavirus en España y agrupados por CCAA, número de casos totales, casos en las últimas 24h y su incidencia en los últimos 14 días.</p>
-<p>Los datos son exportados al fichero “Casos_COVID_ESPAÑA.csv” tras la ejecución del script “Casos_COVID_Espana.py”</p>
+<p>Registro de datos de coronavirus en España y agrupados por CCAA (CCAA), fecha de los registros (FECHA), número de casos totales (CASOS), número de test positivos para los anticuerpos (TestAc+), número de personas hospitalizadas (Hospitalizados), personas ingresadas en UCI (UCI), número de fallecidos (Fallecidos) y número de recuperados (Recuperados).</p>
+<p>Los datos son exportados al fichero “agregados.csv” tras la descarga de la web del ministerio de sanidad <a href="https://cnecovid.isciii.es/covid19/#documentaci%C3%B3n-y-datos" class="uri">https://cnecovid.isciii.es/covid19/#documentaci%C3%B3n-y-datos</a>. Recordamos la imposibilidad de obtener estos datos por errores sin solución de la práctica anterior y que no se pueden obtener de otra forma.</p>
 <p>Importamos el dataset.</p>
+<pre class="r"><code>covid_espana&lt;-read.csv(&quot;agregados.csv&quot;,header=T,sep=&quot;,&quot;)</code></pre>
 </div>
 </div>
 </div>
