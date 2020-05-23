@@ -154,16 +154,24 @@ if(!require(dplyr)){
 library(dplyr)
 
 # Filtraremos el DataFrame para evaluar solo las variables que nos interesan
-covid_espana <- select(covid_espana,FECHA, PCR.)
+covid_espana <- select(covid_espana,CCAA,FECHA, PCR.)
 
 ```
+
+Volvemos a comprobar los valores perdidos:
+
+```{r}
+summary(covid_espana)
+```
+Como solo hay presencia de valores NaN en la variable de las PCR positivas, que además es la variable que más nos interesa para el análisis, sustituiremos esos valores perdidos por 0s.
+
 
 ```{r}
 # Sustitución de valores NaN por ceros
-covid_espana[is.na(covid_espana)] <- 0
+covid_espana$PCR.[is.na(covid_espana$PCR.)] <- 0
 ```
 
-Una vez hecho esto comprobaremos que ahora este dataset no presenta valores NA:
+Una vez hecho esto comprobaremos por última vez que ahora este dataset no presenta valores NAN:
 
 ```{r}
 summary(covid_espana)
@@ -171,7 +179,7 @@ summary(covid_espana)
 
 
 
-<span style="color:red"> *ALEJANDRO, a partir de aquí no se si quizás es mejor eliminar algunas de las filas del dataframe para que encajen con las de los que tu has extraido. Lo digo por lo que planteas tú a continuación.*</span>
+<span style="color:red"> *ALEJANDRO, Está corregido lo que fallaba hasta aquí. Seguimos manteniendo la aplicación del KNN que propones?*</span>
 
 mostrar algo de planteamiento de cómo se habrían tratado un dataframe en case de identificar elementos nulos --> identificación de datos y elminicación de los rows correspondientes - Imputación mediante métodos probabilísticos (kNN nearest neighbo)
 
@@ -205,12 +213,17 @@ boxplot(elect_2020$ev_demanda,main="graph - ev_demanda2020")
 **Casos_COVID_ESPAÑA**
 
 ```{r }
-boxplot.stats(covid_espana$CASOS)$out
+boxplot.stats(covid_espana$PCR.)$out
 ```
 ```{r , echo=FALSE}
-boxplot(covid_espana$CASOS,main="graph - Casos_COVID_ESPAÑA")
+boxplot(covid_espana$PCR.,main="graph - Casos_COVID_ESPAÑA")
 ```
 
+<span style="color:red"> *ALEJANDRO, en cuanto al boxplot me parece normal que muestre tantos valores extremos ya que es un dataframe de casos acumulados . No se si dejarlo así explicado o eliminarlo. ¿Como lo ves?*</span>
+
+Como se aprecia en el Boxplot de los casos acumulados del COVID por comunidades autónomas, existe una gran cantidad de valores extremos. Sin embargo, esto no quiere decir que se deban corregir, de hecho es bastante lógico que aparezcan por la gran cantidad de ceros que se encuentran en los primeros registros del DataFrame.
+
+<span style="color:red"> *ALEJANDRO, no se si existen métodos alternativos para evaluar la presencia de valores extremos en esta clase de datasets. No he cursado estadística y la que estudié en la carrera la tengo algo oxidada. *</span>
 
 # Análisis de los datos
 
@@ -236,7 +249,20 @@ drop=names(elect) %in% c("date")
 elect=elect[,!drop]
 ```
 
-<span style="color:red"> *SERGIO, ver si hay que desarrollar algo para el dataframe de infectados?* normal</span>
+<span style="color:red"> *ALEJANDRO, no me salen las agrupaciones por meses... No se si es saturación o mi inexperiencia en R pero no doy con la tecla. Le he dado 15000 vueltas y me tiene negro ya xD* normal</span>
+
+En cuanto al DataFrame de los casos de COVID positivos lo que se hará es agrupar los casos según el mes y CCAA para poder compararlos con los plots del consumo eléctrico.
+
+
+```{r}
+covid_espana %>%
+
+  mutate(month = format(as.Date(covid_espana$FECHA, "%d/%M/%Y"), "%M"))%>%
+  group_by(month, CCAA) %>%
+  summarise(Total = sum(PCR.))
+
+covid_espana
+```
 
 ## Comprobación de normalidad y homogeneidad de la varianza
 
@@ -302,7 +328,16 @@ lines(elect_apr$day, elect_apr$ev_demanda2019,type="overplotted",pch=2,col="red"
 legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
 ```
 
-<span style="color:red"> *SERGIO, resultados presentados en práctica 1*</span>
+<span style="color:red"> *ALEJANDRO, no me salen los plot y me imagino que es porque no consigo agrupar las PCR por fecha *</span>
+
+```{r}
+library(ggplot2)
+ggplot(covid_espana, aes(x=FECHA, y=PCR., group = CCAA, colour =CCAA )) + 
+  geom_line()  + 
+  geom_point( size=2, shape=70, fill="white") + 
+  theme_minimal()
+```
+
 
 # 6. Resolución del problema
 
