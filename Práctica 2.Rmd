@@ -240,6 +240,7 @@ elect=elect[,!drop]
 En cuanto al DataFrame de los casos de COVID positivos lo que se hará es agrupar los casos según el mes y CCAA para poder compararlos con los plots del consumo eléctrico.
 
 ```{r include=FALSE}
+library(lubridate) #librería para uso de la función month
 fch=1:nrow(covid_espana)
 ```
 ```{r warning=FALSE,error=FALSE}
@@ -249,7 +250,7 @@ for (val in fch) {
 }
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 covid_espana %>%
   mutate(month = format(as.Date(covid_espana$FECHA, "%d/%M/%Y"), "%M"))%>%
   group_by(month, CCAA) %>%
@@ -326,12 +327,12 @@ legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
 <span style="color:blue"> *Ahe pintado la evolución de PCRs en los 3 meses, con una comparativa de 3 comunidades autónomas, creo que para el objetivo de la práctica puede ser suficiente. HE dejado tu parte del cógido al final, pero creo no nos haría falta ya.*</span>
 
 
-**Evolución Covid - Acumulado**
+**Evolución Covid - Acumulado (MD-CT-PV)**
 ```{r , warning=FALSE}
 plot(covid_espana$PCR., type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="Test PCR",   main="Casos Covid (PCR)", ylim=c(min(covid_espana$PCR), max(covid_espana$PCR)))
 legend("topleft",legend="acumulado",    pch=c(1,2),col=c("blue"))
 ```
-**Evolución Covid - Acumulado (MD-CT-PV)**
+**Evolución Covid - Acumulado **
 Representación de los resultados para un mejor entendimiento de los datos, limitado a Comunidad de MAdrid (MD), Cataluña (CT) y País Vasco (PV).
 
 ```{r , warning=FALSE}
@@ -349,7 +350,7 @@ covid_espana_may=covid_espana[covid_espana$month==5,]
 
 
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 library(ggplot2)
 ggplot(covid_espana_feb, aes(x=FECHA, y=PCR., group = CCAA, colour =CCAA )) +   geom_line()  + 
   geom_point( size=2, shape=70, fill="white") + 
