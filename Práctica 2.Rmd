@@ -22,7 +22,6 @@ output:
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
 ```
 ******
 # Introducción y Contexto
@@ -30,7 +29,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 El presente documento recoge las respuestas a los puntos recogidos en la Práctica 2 de la asignatura Tipología y Ciclo de Vida de los Datos. El informe se ha elaborado siguiendo la estructura propuesta en el enunciado de la práctica.
 
-Se ha optado en esta segunda práctica por continuar con el tema desarrollado en la práctica 1, centrada en la extracción de datos relacionados con el virus COVID-19.
+Se ha optado en esta segunda práctica por continuar con el tema desarrollado en la Práctica 1 de la asignatura, centrada en la extracción de datos relacionados con el virus COVID-19.
 Se toma para ello como punto de partida la estructura para extracción de datos generada en la Práctica 1.
 
 Los entornos web seleccionados para la extracción de los datos citados son:
@@ -51,16 +50,15 @@ Se muestra a continuación una breve descripción de los dataset obtenidos en la
 
 Registro con los datos de consumo energético en España para los meses de enero, febrero, marzo, abril, en años 2019 y 2020.
 
-Ev_demanda20:dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2020. Datos exportados en fichero .csv Consumo_elect_COVID_2020.csv.
+**Ev_demanda20:**dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2020. Datos exportados en fichero .csv *Consumo_elect_COVID_2020.csv*.
 
-Ev_demanda2019:dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2019. Datos exportados en fichero .csv Consumo_elect_COVID_2019.csv.
+**Ev_demanda2019:**dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2019. Datos exportados en fichero .csv *Consumo_elect_COVID_2019.csv*.
 
-Generación de ambos dataset mediante la ejecución del script “API - Red Electrica.py”
+Generación de ambos dataset mediante la ejecución del script *API - Red Electrica.py*.
 
 Importamos los datasets.
 ```{r }
 elect_2020<-read.csv2("Consumo_elect_COVID_2020.csv",header=T,stringsAsFactors=FALSE, fileEncoding="latin1",sep=",",dec=".")
-
 elect_2019<-read.csv2("Consumo_elect_COVID_2019.csv",header=T,stringsAsFactors=FALSE, fileEncoding="latin1",sep=",",dec=".")
 ```
 
@@ -69,14 +67,13 @@ elect_2019<-read.csv2("Consumo_elect_COVID_2019.csv",header=T,stringsAsFactors=F
 
 Registro de datos de coronavirus en España y agrupados por CCAA (CCAA), fecha de los registros (FECHA), número de casos totales (CASOS), número de test positivos para los anticuerpos (TestAc+), número de personas hospitalizadas (Hospitalizados), personas ingresadas en UCI (UCI), número de fallecidos (Fallecidos) y número de recuperados (Recuperados). 
 
-Los datos son exportados al fichero “Casos_COVID_ESPAÑA.csv” tras la descarga de la web del ministerio de sanidad https://cnecovid.isciii.es/covid19/#documentaci%C3%B3n-y-datos. Recordamos la imposibilidad de obtener estos datos por errores sin solución de la práctica anterior y que no se pueden obtener de otra forma. 
+Los datos son exportados al fichero *Casos_COVID_ESPAÑA.csv* tras la descarga de la web del ministerio de sanidad https://cnecovid.isciii.es/covid19/#documentaci%C3%B3n-y-datos. Recordamos la imposibilidad de obtener estos datos por errores sin solución de la práctica anterior y que no se pueden obtener de otra forma. 
 
 
 Importamos el dataset.
 ```{r message= FALSE, warning=FALSE}
 covid_espana<-read.csv("Casos_COVID_ESPAÑA.csv",header=T,sep=",", stringsAsFactors=FALSE)
 attach(covid_espana)
-
 ```
 
 
@@ -85,19 +82,20 @@ attach(covid_espana)
 
 ## Datos consumo energético
 
-Extraídos a partir de la aplicación API disponible en la plataforma REData de Red Eléctrica: https://www.ree.es/es, 
-El conjunto de datos seleccionado mediante la request lanzada a la API se ha limitado a la evolución de la demanda para los meses de enero-febrero-marzo-abril. 
+Extraídos a partir de la aplicación API disponible en la plataforma REData de Red Eléctrica: https://www.ree.es/es.
 
-r = requests.get('https://apidatos.ree.es/es/datos/demanda/
-indicamos los datos, en este caso evolución de demanda
-  evolucion?
-rango temporal para el que solicitamos los datos
-  start_date=2020-01-01T00:00&end_date=2020-0325T22:00&
-fracción temporal en la que queremos visualizar los datos (diario)
-  time_trunc=day&
-Zona geográfica sobre la que aplicaremos la extracción de datos.
-  geo_limit=peninsular&
-  geo_ids=8741')
+El conjunto de datos seleccionado mediante la request lanzada a la API se ha limitado a la evolución de la demanda para los meses de enero-febrero-marzo-abril en años 2019 y 2020.
+
+r = requests.get(https://apidatos.ree.es/es/datos/demanda/
+*indicamos los datos, en este caso evolución de demanda*
+  **evolucion?**
+*rango temporal para el que solicitamos los datos*
+  **start_date=2020-01-01T00:00&end_date=2020-0325T22:00**&
+*fracción temporal en la que queremos visualizar los datos (diario)*
+  **time_trunc=day**&
+*Zona geográfica sobre la que aplicaremos la extracción de datos.*
+  **geo_limit=peninsular**&
+  **geo_ids=8741'**)
 
 ## Evolución COVID-19 en España
 
@@ -109,10 +107,11 @@ En cuanto a la evolución de los datos sobre los casos del COVID-19 por comunida
 
 En cuanto al tratamiento de elementos vacíos, se plantea en este apartado un barrido de los dataframes que se analizarán posteriormente a fin de identificar, o descartar la presencia de dichos elementos vacíos que puedan repercutir negativamente en la interpretación y tratamiento de los datos.
 
+**Dataframes: elect2020 & elect 2019**
+
 ```{r }
 NA_Noff_elect2020 <-sapply(elect_2020, function(y) sum(length(which(is.na(y))))) #count de campos NA para cada variable en el dataframe
 NA_Noff_elect2020 <- data.frame(NA_Noff_elect2020) #generamos un dataframe para la visualización del total de NA "valores perdidos" por variable
-
 NA_Noff_elect2019 <-sapply(elect_2019, function(y) sum(length(which(is.na(y))))) #count de campos NA para cada variable en el dataframe
 NA_Noff_elect2019 <- data.frame(NA_Noff_elect2019) #generamos un dataframe para la visualización del total de NA "valores perdidos" por variable
 ```
@@ -124,11 +123,11 @@ NA_Noff_elect2020
 NA_Noff_elect2019
 ```
 
-Vemos como estos dos dataframes no contienen en ningún caso elementos vacíos --> debido a como se ha podido extraer la información de los entornos web.
+Vemos como estos dos dataframes no contienen en ningún caso elementos vacíos, la extracción de la información del entorno web para ambos dataframes se ha llevado a cabo sin NA´s resultantes.
 
-Sin embargo, no ocurre lo mismo para el DataFrame de los casos de COVID-19.
+**Dataframes: covid_espana**
 
-Para el conjunto de datos de los casos de COVID-19 se propone una metodología diferente a la de los datos de la API. 
+Procedemos a continuación a revisar el dataframe que contiene los casos de COVID-19. Se propone para ello una metodología ligeramente diferente a la mostrada para los datos de demanda eléctrica. 
 
 Primero lo que haremos es comprobar la presencia de valores vacios mediante el uso de la función summary() de las expresiones regulares de R.
 
@@ -141,8 +140,6 @@ Como se puede observar, y como era de esperar ya que los datos son de tipo acumu
 Antes de sustituir los valores NAN, haremos una selección de las variables que realmente vamos a utilizar en el análisis.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
-
-
 if(!require(dplyr)){
     install.packages('dplyr', repos='http://cran.us.r-project.org')
     library(dplyr)
@@ -152,10 +149,8 @@ if(!require(dplyr)){
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 # Llamada a la librería necesaria para seleccionar columnas
 library(dplyr)
-
 # Filtraremos el DataFrame para evaluar solo las variables que nos interesan
 covid_espana <- select(covid_espana,CCAA,FECHA, PCR.)
-
 ```
 
 Volvemos a comprobar los valores perdidos:
@@ -163,7 +158,9 @@ Volvemos a comprobar los valores perdidos:
 ```{r}
 summary(covid_espana)
 ```
-Como solo hay presencia de valores NaN en la variable de las PCR positivas, que además es la variable que más nos interesa para el análisis, sustituiremos esos valores perdidos por 0s.
+Entre las varables seleccionadas de interés para el análisis, vemos que unicamente identificamos la presencia de valores NaN en la variable de las PCR positivas.
+
+Procedemos con la sustitución de NANs por 0s.
 
 
 ```{r}
@@ -180,14 +177,7 @@ summary(covid_espana)
 
 
 <span style="color:red"> *ALEJANDRO, Está corregido lo que fallaba hasta aquí. Seguimos manteniendo la aplicación del KNN que propones?*</span>
-
-mostrar algo de planteamiento de cómo se habrían tratado un dataframe en case de identificar elementos nulos --> identificación de datos y elminicación de los rows correspondientes - Imputación mediante métodos probabilísticos (kNN nearest neighbo)
-
-Aplicamos la función "kNN" a las variables "BPD" y "AD", con un k=3:
-```{r ,eval=FALSE}
-#library("VIM")
-#dataframe=kNN(df,variable=c("A","B"),k=3)
-```
+<span style="color:blue"> *No, dejamos la sustitución por 0s que has indicado, es igualmente válida*</span>
 
 
 ## Identificación y tratamiento de valores extremos
@@ -220,25 +210,18 @@ boxplot(covid_espana$PCR.,main="graph - Casos_COVID_ESPAÑA")
 ```
 
 <span style="color:red"> *ALEJANDRO, en cuanto al boxplot me parece normal que muestre tantos valores extremos ya que es un dataframe de casos acumulados . No se si dejarlo así explicado o eliminarlo. ¿Como lo ves?*</span>
+<span style="color:blue"> *Mantendría la explicación, me parece es acertada. Estoy cursando estadística, para la identificación de valores extremos basicamente se utiliza el diagrama de cajas y los comandos que he incluido en la práctica, no sé si hay alguna otra alternativa.*</span>
 
 Como se aprecia en el Boxplot de los casos acumulados del COVID por comunidades autónomas, existe una gran cantidad de valores extremos. Sin embargo, esto no quiere decir que se deban corregir, de hecho es bastante lógico que aparezcan por la gran cantidad de ceros que se encuentran en los primeros registros del DataFrame.
 
-<span style="color:red"> *ALEJANDRO, no se si existen métodos alternativos para evaluar la presencia de valores extremos en esta clase de datasets. No he cursado estadística y la que estudié en la carrera la tengo algo oxidada. *</span>
-
 # Análisis de los datos
-
 ## Selección de los grupos de datos
-
 Para la evaluación de los dataset con el registro de demanda energética, estaremos interesados en mostrar una comparativa de la evolución de dicha demanda a fin de identificar varaciaciones significativas entre 2020 y 2019. 
-
 Una de las primera particularidades que vemos es que el año 2019 es bisiesto, conteniendo un día más que puede dar lugar a errores en el desarrollo de dicha comparativa. Procederemos a eliminar el registro correspondiente al año 2020 (mes-febrero, día-29), y tener de esta forma dos dataframes lo más homogéneos posible y con un mismo número de registros.
-
 ```{r }
 subset(elect_2020, day==29 & month==2)
 ```
-
-Identificado la fila que contiene los datos correspondientes al mes de febrero (día 29), del 2020, procedemos a eliminar dicho registro y generar un único dataframe que contenga los registros de ambos años, 2020 y 2019, y que nos permita llevar a cabo los posteriores estudios.
-
+Identificada la fila que contiene los datos,  procedemos a eliminar dicho registro y combinar los datos de años 2019 y 2020 en un único dataframe.
 ```{r }
 elect_2020_feb=elect_2020[-c(60),] #eliminamos registro del año bisiesto.
 rownames(elect_2020_feb)=NULL #redefinimos indices en dataframe 
@@ -248,19 +231,29 @@ elect$ev_demanda2019=elect_2019$ev_demanda
 drop=names(elect) %in% c("date")
 elect=elect[,!drop]
 ```
-
 <span style="color:red"> *ALEJANDRO, no me salen las agrupaciones por meses... No se si es saturación o mi inexperiencia en R pero no doy con la tecla. Le he dado 15000 vueltas y me tiene negro ya xD* normal</span>
+
+<span style="color:blue"> *no he encontrado un comando claro, seguro que lo hay... he optado por introducir un par de columnas por meses y días, y a partir de ahí particionar el dataframe por meses. Dejo tu código original incluido abajo.*</span>
+
+<span style="color:blue"> *lo que necesitamos hacer, y que ya no he hecho... es limitar el dataframe a los máximos por comunidad para cada mes*</span>
 
 En cuanto al DataFrame de los casos de COVID positivos lo que se hará es agrupar los casos según el mes y CCAA para poder compararlos con los plots del consumo eléctrico.
 
+```{r include=FALSE}
+fch=1:nrow(covid_espana)
+```
+```{r warning=FALSE,error=FALSE}
+for (val in fch) {
+  covid_espana$month[val]=month(covid_espana$FECHA[val])
+  covid_espana$day[val]=day(covid_espana$FECHA[val])
+}
+```
 
 ```{r}
 covid_espana %>%
-
   mutate(month = format(as.Date(covid_espana$FECHA, "%d/%M/%Y"), "%M"))%>%
   group_by(month, CCAA) %>%
   summarise(Total = sum(PCR.))
-
 covid_espana
 ```
 
@@ -290,6 +283,8 @@ $Ev_demanda(afectados covid)$
 plot(elect$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
 lines(elect$ev_demanda2019,type="overplotted",pch=2,col="red")
 legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+
+#particionamos el dataframe para el posterior tratamiento de los resultados por mes.
 elect_jan=elect[elect$month==1,]
 elect_feb=elect[elect$month==2,]
 elect_mar=elect[elect$month==3,]
@@ -301,7 +296,6 @@ elect_apr=elect[elect$month==4,]
 ```{r , warning=FALSE}
 plot(elect_jan$day, elect_jan$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (January)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
 lines(elect_jan$day, elect_jan$ev_demanda2019,type="overplotted",pch=2,col="red")
-
 legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
 ```
 
@@ -329,18 +323,40 @@ legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
 ```
 
 <span style="color:red"> *ALEJANDRO, no me salen los plot y me imagino que es porque no consigo agrupar las PCR por fecha *</span>
+<span style="color:blue"> *Ahe pintado la evolución de PCRs en los 3 meses, con una comparativa de 3 comunidades autónomas, creo que para el objetivo de la práctica puede ser suficiente. HE dejado tu parte del cógido al final, pero creo no nos haría falta ya.*</span>
+
+
+**Evolución Covid - Acumulado**
+```{r , warning=FALSE}
+plot(covid_espana$PCR., type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="Test PCR",   main="Casos Covid (PCR)", ylim=c(min(covid_espana$PCR), max(covid_espana$PCR)))
+legend("topleft",legend="acumulado",    pch=c(1,2),col=c("blue"))
+```
+**Evolución Covid - Acumulado (MD-CT-PV)**
+Representación de los resultados para un mejor entendimiento de los datos, limitado a Comunidad de MAdrid (MD), Cataluña (CT) y País Vasco (PV).
+
+```{r , warning=FALSE}
+plot(covid_espana$PCR.[CCAA=="MD"], type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="Test PCR",   main="Casos Covid (PCR)", ylim=c(min(covid_espana$PCR), max(covid_espana$PCR)))
+lines(covid_espana$PCR.[CCAA=="CT"],type="overplotted",pch=2,col="red")
+lines(covid_espana$PCR.[CCAA=="PV"],type="overplotted",pch=2,col="green")
+legend("topleft",legend=c("MD","CT","PV"),    pch=c(1,2),col=c("blue","red","green"))
+
+#particionamos el dataframe para un posterior tratamiento de los resultados por mes
+covid_espana_feb=covid_espana[covid_espana$month==2,]
+covid_espana_mar=covid_espana[covid_espana$month==3,]
+covid_espana_apr=covid_espana[covid_espana$month==4,]
+covid_espana_may=covid_espana[covid_espana$month==5,]
+```
+
+
 
 ```{r}
 library(ggplot2)
-ggplot(covid_espana, aes(x=FECHA, y=PCR., group = CCAA, colour =CCAA )) + 
-  geom_line()  + 
+ggplot(covid_espana_feb, aes(x=FECHA, y=PCR., group = CCAA, colour =CCAA )) +   geom_line()  + 
   geom_point( size=2, shape=70, fill="white") + 
   theme_minimal()
 ```
 
-
 # 6. Resolución del problema
-
 <span style="color:red"> *SERGIO y Alejandro*</span>
 
 
