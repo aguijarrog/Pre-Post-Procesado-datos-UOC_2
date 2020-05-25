@@ -235,22 +235,33 @@ elect=elect[,!drop]
 
 <span style="color:blue"> *no he encontrado un comando claro, seguro que lo hay... he optado por introducir un par de columnas por meses y días, y a partir de ahí particionar el dataframe por meses. Dejo tu código original incluido abajo.*</span>
 
-<span style="color:blue"> *lo que necesitamos hacer, y que ya no he hecho... es limitar el dataframe a los máximos por comunidad para cada mes*</span>
-
 En cuanto al DataFrame de los casos de COVID positivos lo que se hará es agrupar los casos según el mes y CCAA para poder compararlos con los plots del consumo eléctrico.
 
-```{r include=FALSE}
+
+```{r }
 library(lubridate) #librería para uso de la función month
-fch=1:nrow(covid_espana)
+
 ```
-```{r warning=FALSE,error=FALSE}
+
+<span style="color:red"> *OPCIÓN1, me da error al ejecutar knit, no he visto como solucionarlo* normal</span>
+```{r eval=FALSE}
+fch=1:nrow(covid_espana)
 for (val in fch) {
   covid_espana$month[val]=month(covid_espana$FECHA[val])
   covid_espana$day[val]=day(covid_espana$FECHA[val])
 }
 ```
 
-```{r eval=FALSE, include=FALSE}
+<span style="color:red"> *OPCIÓN2* normal</span>
+```{r }
+
+covid_espana$FECHAaux=dmy(covid_espana$FECHA) #conversión FECHA al formado correcto "/" --> "-"
+covid_espana$month=month(covid_espana$FECHAaux) #generamos columna con meses
+covid_espana$day=day(covid_espana$FECHAaux) #generamos columna con días
+```
+
+<span style="color:red"> *OPCIÓN3, la que proponías Sergio. He vito algunos ejemplos en internet, pero no he consigo hacer qque funcionase* normal</span>
+```{r eval=FALSE}
 covid_espana %>%
   mutate(month = format(as.Date(covid_espana$FECHA, "%d/%M/%Y"), "%M"))%>%
   group_by(month, CCAA) %>%
