@@ -176,9 +176,6 @@ summary(covid_espana)
 
 
 
-<span style="color:red"> *ALEJANDRO, Está corregido lo que fallaba hasta aquí. Seguimos manteniendo la aplicación del KNN que propones?*</span>
-<span style="color:blue"> *No, dejamos la sustitución por 0s que has indicado, es igualmente válida*</span>
-
 
 ## Identificación y tratamiento de valores extremos
 
@@ -209,19 +206,21 @@ boxplot.stats(covid_espana$PCR.)$out
 boxplot(covid_espana$PCR.,main="graph - Casos_COVID_ESPAÑA")
 ```
 
-<span style="color:red"> *ALEJANDRO, en cuanto al boxplot me parece normal que muestre tantos valores extremos ya que es un dataframe de casos acumulados . No se si dejarlo así explicado o eliminarlo. ¿Como lo ves?*</span>
-<span style="color:blue"> *Mantendría la explicación, me parece es acertada. Estoy cursando estadística, para la identificación de valores extremos basicamente se utiliza el diagrama de cajas y los comandos que he incluido en la práctica, no sé si hay alguna otra alternativa.*</span>
 
 Como se aprecia en el Boxplot de los casos acumulados del COVID por comunidades autónomas, existe una gran cantidad de valores extremos. Sin embargo, esto no quiere decir que se deban corregir, de hecho es bastante lógico que aparezcan por la gran cantidad de ceros que se encuentran en los primeros registros del DataFrame.
 
 # Análisis de los datos
 ## Selección de los grupos de datos
 Para la evaluación de los dataset con el registro de demanda energética, estaremos interesados en mostrar una comparativa de la evolución de dicha demanda a fin de identificar varaciaciones significativas entre 2020 y 2019. 
+
 Una de las primera particularidades que vemos es que el año 2019 es bisiesto, conteniendo un día más que puede dar lugar a errores en el desarrollo de dicha comparativa. Procederemos a eliminar el registro correspondiente al año 2020 (mes-febrero, día-29), y tener de esta forma dos dataframes lo más homogéneos posible y con un mismo número de registros.
+
 ```{r }
 subset(elect_2020, day==29 & month==2)
 ```
+
 Identificada la fila que contiene los datos,  procedemos a eliminar dicho registro y combinar los datos de años 2019 y 2020 en un único dataframe.
+
 ```{r }
 elect_2020_feb=elect_2020[-c(60),] #eliminamos registro del año bisiesto.
 rownames(elect_2020_feb)=NULL #redefinimos indices en dataframe 
@@ -231,9 +230,7 @@ elect$ev_demanda2019=elect_2019$ev_demanda
 drop=names(elect) %in% c("date")
 elect=elect[,!drop]
 ```
-<span style="color:red"> *ALEJANDRO, no me salen las agrupaciones por meses... No se si es saturación o mi inexperiencia en R pero no doy con la tecla. Le he dado 15000 vueltas y me tiene negro ya xD* normal</span>
 
-<span style="color:blue"> *no he encontrado un comando claro, seguro que lo hay... he optado por introducir un par de columnas por meses y días, y a partir de ahí particionar el dataframe por meses. Dejo tu código original incluido abajo.*</span>
 
 En cuanto al DataFrame de los casos de COVID positivos lo que se hará es agrupar los casos según el mes y CCAA para poder compararlos con los plots del consumo eléctrico.
 
@@ -241,33 +238,12 @@ En cuanto al DataFrame de los casos de COVID positivos lo que se hará es agrupa
 ```{r }
 library(lubridate) #librería para uso de la función month
 
-```
-
-<span style="color:red"> *OPCIÓN1, me da error al ejecutar knit, no he visto como solucionarlo* normal</span>
-```{r eval=FALSE}
-fch=1:nrow(covid_espana)
-for (val in fch) {
-  covid_espana$month[val]=month(covid_espana$FECHA[val])
-  covid_espana$day[val]=day(covid_espana$FECHA[val])
-}
-```
-
-<span style="color:red"> *OPCIÓN2* dejamos esta si no encontramos nada mejor, funciona</span>
-```{r }
-
 covid_espana$FECHAaux=dmy(covid_espana$FECHA) #conversión FECHA al formado correcto "/" --> "-"
 covid_espana$month=month(covid_espana$FECHAaux) #generamos columna con meses
 covid_espana$day=day(covid_espana$FECHAaux) #generamos columna con días
 ```
 
-<span style="color:red"> *OPCIÓN3, la que proponías Sergio. He vito algunos ejemplos en internet, pero no he consigo hacer qque funcionase* normal</span>
-```{r eval=FALSE}
-covid_espana %>%
-  mutate(month = format(as.Date(covid_espana$FECHA, "%d/%M/%Y"), "%M"))%>%
-  group_by(month, CCAA) %>%
-  summarise(Total = sum(PCR.))
-covid_espana
-```
+
 
 ## Comprobación de normalidad y homogeneidad de la varianza
 
@@ -333,9 +309,6 @@ plot(elect_apr$day, elect_apr$ev_demanda_2020, type="overplotted",   pch=1, col=
 lines(elect_apr$day, elect_apr$ev_demanda2019,type="overplotted",pch=2,col="red")
 legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
 ```
-
-<span style="color:red"> *ALEJANDRO, no me salen los plot y me imagino que es porque no consigo agrupar las PCR por fecha *</span>
-<span style="color:blue"> *Ahe pintado la evolución de PCRs en los 3 meses, con una comparativa de 3 comunidades autónomas, creo que para el objetivo de la práctica puede ser suficiente. HE dejado tu parte del cógido al final, pero creo no nos haría falta ya.*</span>
 
 
 **Evolución Covid - Acumulado (MD-CT-PV)**
