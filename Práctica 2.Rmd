@@ -252,7 +252,7 @@ for (val in fch) {
 }
 ```
 
-<span style="color:red"> *OPCIÓN2* normal</span>
+<span style="color:red"> *OPCIÓN2* dejamos esta si no encontramos nada mejor, funciona</span>
 ```{r }
 
 covid_espana$FECHAaux=dmy(covid_espana$FECHA) #conversión FECHA al formado correcto "/" --> "-"
