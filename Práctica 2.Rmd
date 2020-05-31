@@ -306,7 +306,7 @@ Procedemos a crear los subconjuntos de datos para algunas de las CCAA más afect
 ```{r}
 #Crear sub-conjunto de datos
 AN <-subset(covid_espana,CCAA=="AN") #cuando se tiene la muestra de varios grupos es apropiado comprobar la normalidad por grupo.
-head(andalucia)
+
 CB <- subset(covid_espana,CCAA=="CB")
 CM <- subset(covid_espana,CCAA=="CM")
 
