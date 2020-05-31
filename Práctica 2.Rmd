@@ -62,6 +62,8 @@ elect_2020<-read.csv2("Consumo_elect_COVID_2020.csv",header=T,stringsAsFactors=F
 elect_2019<-read.csv2("Consumo_elect_COVID_2019.csv",header=T,stringsAsFactors=FALSE, fileEncoding="latin1",sep=",",dec=".")
 ```
 
+
+
 ### Casos_COVID_ESPAÑA
 
 
@@ -76,6 +78,37 @@ covid_espana<-read.csv("Casos_COVID_ESPAÑA.csv",header=T,sep=",", stringsAsFact
 attach(covid_espana)
 ```
 
+<span style="color:red"> *Alejandro, he añadido este apartado para los 3 sets. Revísalo por si crees que hay que cambiar algo, sobre todo de los tuyos*</span>
+
+### Análisis preliminar de los datasets
+
+Una vez que hemos importado todos los dataset de la API y los caso de COVID-19, haremos uso de algunas funciones regulares de R para obtener una primera aproximación a la estructura de los datos de cada uno de los conjuntos.
+
+
+- Ev_demanda20 y Ev_demanda2019: para estos dos datasets haremos uso de las funciones summary() y str()
+
+```{r}
+str(elect_2019)
+```
+
+El uso de str() permite un primer contacto con la estructura del set, como en este caso, podemos observar variables de tipo int, num y str y ninguna de tipo discreto.
+
+```{r}
+summary(elect_2020)
+
+```
+
+Y el uso de summary() muestra un análisis de los estadisticos básicos del set que resulta de gran ayuda antes de continuar con los siguientes procesos.
+
+
+- COVID-19: para el caso de este dataset haremos uso de las funciones head() y tail()
+
+```{r}
+head(covid_espana)
+tail(covid_espana)
+```
+
+Como era de esperar (ya que los datos en este DataFrame están dispuestos de manera acumulativa), vemos que los primeros registros de este dataset presentan numerosos valores NaN y valores = 0. En cuanto a la cola, observamos la presencia de los registros con los valores más altos de PCRs y demás variables para cada CCAA.
 
 
 # Integración y Selección de los datos de interés a analizar
@@ -129,13 +162,18 @@ Vemos como estos dos dataframes no contienen en ningún caso elementos vacíos, 
 
 Procedemos a continuación a revisar el dataframe que contiene los casos de COVID-19. Se propone para ello una metodología ligeramente diferente a la mostrada para los datos de demanda eléctrica. 
 
-Primero lo que haremos es comprobar la presencia de valores vacios mediante el uso de la función summary() de las expresiones regulares de R.
+Primero lo que haremos es comprobar la presencia de valores vacios mediante el uso de la función summary() de las expresiones regulares de R, así como el uso de str() que nos dará información sobre que tipo de variables se encuentra en este set.
 
 ```{r}
 summary(covid_espana)
+str(covid_espana)
 ```
 
-Como se puede observar, y como era de esperar ya que los datos son de tipo acumulado, hay una gran cantidad de valores NA. Para este estudio en concreto se plantea la sustitución de esos valores nulos por ceros ya que no representa ningún problema para el análisis. 
+<span style="color:red"> *Alejandro, mira si te parece bien esta justificación de los valores nulos, sobre todo a la redacción. Creo qu está bien pero si ves cualquier cosa cambialo sin problema*</span>
+
+Para este estudio en concreto se plantea la sustitución de valores nulos por ceros.
+
+Con lo visto en el apartado anterior, este set de datos acumulados presenta al inicio un gran número de registros de tipo NaN y esto es debido a que no existían casos positivos de COVID-19 en muchas de las CCAA de España. Además, al llamar a la función tail() hemos comprobado que al final del DataFrame no nos encontrabamos con ningún registro con valores perdidos y que al analizar el set con la función str, vemos que los valores NaN solo afectan a las variables de tipo int. Otra razón que nos lleva a tomar esta decisión es la propia naturaleza del set y es que en los casos de datos dispuestos de forma acumulativa, los primeros registros son siempre los más bajos o nulos. Por todo lo anterior, asumiremos que la sustitución de los mismos por 0s no supondrá error alguno en los análisis ni las representaciones gráficas posteriores.
 
 Antes de sustituir los valores NAN, haremos una selección de las variables que realmente vamos a utilizar en el análisis.
 
@@ -247,11 +285,156 @@ covid_espana$day=day(covid_espana$FECHAaux) #generamos columna con días
 
 ## Comprobación de normalidad y homogeneidad de la varianza
 
-<span style="color:red"> *SERGIO y Alejandro, pendiente darle una vuelta a ver que test aplicamos para comprobación de normalidad-homogeneidad*</span>
+<span style="color:red"> *Alejandro, SI PUDIERAS AÑADIR ALGUNA CONCLUSIÓN A ESTE APARTADO SERÍA MEJOR QUE LA QUE PUEDO APORTAR YO, YA QUE HAS CURSADO ESTADÍSTICA*</span>
 
+Para el estudio de la normalidad de los datos, haremos uso de varias librerias que se cargan a continuación.
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+if(!require(normtest)){
+    install.packages('normtest', repos='http://cran.us.r-project.org')
+    library(normtest)
+}
+
+```
+
+```{r}
+library(normtest) #CON ESTA LIBRERÍA SE PUEDEN REALIZAR 5 PRUEBAS DE NORMALIDAD
+```
+
+Procedemos a crear los subconjuntos de datos para algunas de las CCAA más afectadas (Para los DataSets del consumo eléctrico no es necesario crear esos subconjuntos):
+
+```{r}
+#Crear sub-conjunto de datos
+AN <-subset(covid_espana,CCAA=="AN") #cuando se tiene la muestra de varios grupos es apropiado comprobar la normalidad por grupo.
+head(andalucia)
+CB <- subset(covid_espana,CCAA=="CB")
+CM <- subset(covid_espana,CCAA=="CM")
+
+```
+
+- Hipótesis
+
+H0: La muestra proviene de una distribución normal.
+
+H1: La muestra no proviene de una distribución normal.
+
+Para pruebas de normalidad siempre se plantean así las hipótesis.
+
+- Nivel de Significancia
+
+El nivel de significancia que se trabajará es de 0.05. Alfa=0.05
+
+Criterio de Decisión
+
+Si P < Alfa Se rechaza Ho
+
+Si p >= Alfa No se rechaza Ho
+
+Histogramas para los subconjuntos creados y para los sets del consumo eléctrico:
+```{r}
+#Histogramas COVID
+hist(AN[,4])
+hist(CB[,4])
+hist(CM[,4])
+
+#Histogramas EV
+hist(elect_2019[,2])
+hist(elect_2020[,2])
+```
+
+Pruebas de normalidad:
+```{r}
+#Prueba de Anderson-Darling
+ad.test(AN[,4])
+ad.test(CB[,4])
+ad.test(CM[,4])
+
+ad.test(elect_2019[,2])
+ad.test(elect_2020[,2])
+```
+
+
+
+```{r}
+#Prueba de Cramer-von Mises
+cvm.test(AN[,4])
+cvm.test(CB[,4])
+cvm.test(CM[,4])
+
+cvm.test(elect_2019[,2])
+cvm.test(elect_2020[,2])
+```
+```{r}
+# Prueba de Pearson (Chi cuadrado)
+pearson.test(AN[,4])
+pearson.test(CB[,4])
+pearson.test(CM[,4])
+
+pearson.test(elect_2019[,2])
+pearson.test(elect_2020[,2])
+```
 ## Pruebas Estadísticas
 
 <span style="color:red"> *SERGIO y Alejandro*</span>
+
+Para realizar las pruebas estadísticas optaremos por dividir el conjunto de datos en un conjunto de entrenamiento y un conjunto de prueba. El conjunto de entrenamiento es el subconjunto del conjunto original de datos utilizado para construir un primer modelo; y el conjunto de prueba, el subconjunto del conjunto original de datos utilizado para evaluar la calidad del modelo. 
+
+Lo más correcto será utilizar un conjunto de datos diferente del que utilizamos para construir el árbol, es decir, un conjunto diferente del de entrenamiento. No hay ninguna proporción fijada con respecto al número relativo de componentes de cada subconjunto, pero la más utilizada acostumbra a ser 2/3 para el conjunto de entrenamiento y 1/3, para el conjunto de prueba.
+
+Como hemos podido comprobar con anterioridad, nuestros conjuntos de datos se encontraban ordenados. Para realizar este tipo de prubas estadísticas, nos interesará que los mismos se encuentren desordenados. Para ello procederemos a guardarlos en unos nuevos sets con el prefijo random_.
+
+```{r}
+# Desordenamos los sets
+set.seed(1)
+random_covid <- covid_espana[sample(nrow(covid_espana)),]
+
+random_elec_2019 <- elect_2019[sample(nrow(elect_2019)),]
+random_elec_2020 <- elect_2020[sample(nrow(elect_2020)),]
+```
+
+
+La variable con la que clasificaremos el conjunto de datos del random_covid será la de las PCR que se encuentra en la columna 4 y para los sets del consumo eléctrico usaremos la ev_demanda que se encuentra en la posicion 2.
+
+<span style="color:red"> *Alejandro dale una vuelta a la parte de tus sets que no se muy bien como organizarlo*</span>
+
+```{r}
+set.seed(666)
+covid_y <- random_covid[,4] 
+covid_X <- random_covid[,6:9] 
+
+```
+
+Podemos elegir el subconjunto de entrenamiento y de prueba de diversas maneras. La primer opción consiste en calcular a cuántas filas corresponde dos tercios de los datos (2*1680/3=1120) y dividir "manualmente" el conjunto.
+
+```{r}
+trainX <- covid_X[1:1120,]
+trainy <- covid_y[1:1120]
+testX <- covid_X[1120:1680,]
+testy <- covid_y[1120:1680]
+```
+
+En la segunda opción podemos crear directamente un rango.
+
+```{r}
+indexes = sample(1:nrow(random_covid), size=floor((2/3)*nrow(random_covid)))
+trainX<-covid_X[indexes,]
+trainy<-covid_y[indexes]
+testX<-covid_X[-indexes,]
+testy<-covid_y[-indexes]
+```
+
+
+Después de una extracción aleatoria de casos es altamente recomendable efectuar un análisis de datos mínimo para asegurarnos de no obtener clasificadores sesgados por los valores que contiene cada muestra. 
+
+
+<span style="color:red"> *Alejandro mira a ver si puedes dar con el error que me arrojan las siguientes lineas*</span>
+
+Se crea el árbol de decisión usando los datos de entrenamiento:
+
+```{r}
+model <- C50::C5.0(trainX, trainy,rules=TRUE )
+summary(model)
+```
 
 Cosas a revisar
 
