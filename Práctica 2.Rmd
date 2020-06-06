@@ -1,7 +1,7 @@
 ---
 title: "Tipología y ciclo de vida de los datos: Práctica 2 - Pre-Post Procesado de datos"
 author: "Alejandro Guijarro - Sergio Roque Duarte Pérez"
-date: "10/5/2020"
+date: "06/06/2020"
 output: 
   html_document:
     highlight: default
@@ -50,7 +50,7 @@ Se muestra a continuación una breve descripción de los dataset obtenidos en la
 
 Registro con los datos de consumo energético en España para los meses de enero, febrero, marzo, abril, en años 2019 y 2020.
 
-**Ev_demanda20:**dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2020. Datos exportados en fichero .csv *Consumo_elect_COVID_2020.csv*.
+**Ev_demanda2020:**dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2020. Datos exportados en fichero .csv *Consumo_elect_COVID_2020.csv*.
 
 **Ev_demanda2019:**dataset incluyendo datos de demanda eléctrica diaria entre meses de enero-febrero-marzo-abril 2019. Datos exportados en fichero .csv *Consumo_elect_COVID_2019.csv*.
 
@@ -61,8 +61,6 @@ Importamos los datasets.
 elect_2020<-read.csv2("Consumo_elect_COVID_2020.csv",header=T,stringsAsFactors=FALSE, fileEncoding="latin1",sep=",",dec=".")
 elect_2019<-read.csv2("Consumo_elect_COVID_2019.csv",header=T,stringsAsFactors=FALSE, fileEncoding="latin1",sep=",",dec=".")
 ```
-
-
 
 ### Casos_COVID_ESPAÑA
 
@@ -78,30 +76,29 @@ covid_espana<-read.csv("Casos_COVID_ESPAÑA.csv",header=T,sep=",", stringsAsFact
 attach(covid_espana)
 ```
 
-<span style="color:red"> *Alejandro, he añadido este apartado para los 3 sets. Revísalo por si crees que hay que cambiar algo, sobre todo de los tuyos*</span>
 
 ### Análisis preliminar de los datasets
 
 Una vez que hemos importado todos los dataset de la API y los caso de COVID-19, haremos uso de algunas funciones regulares de R para obtener una primera aproximación a la estructura de los datos de cada uno de los conjuntos.
 
 
-- Ev_demanda20 y Ev_demanda2019: para estos dos datasets haremos uso de las funciones summary() y str()
+- Ev_demanda2020 y Ev_demanda2019: para estos dos datasets haremos uso de las funciones "summary()" y "str()"
 
 ```{r}
 str(elect_2019)
 ```
 
-El uso de str() permite un primer contacto con la estructura del set, como en este caso, podemos observar variables de tipo int, num y str y ninguna de tipo discreto.
+El uso de "str()" permite un primer contacto con la estructura del set, observamos en este caso como las variables son de tipo int, num y str.
 
 ```{r}
 summary(elect_2020)
 
 ```
 
-Y el uso de summary() muestra un análisis de los estadisticos básicos del set que resulta de gran ayuda antes de continuar con los siguientes procesos.
+El comando "summary()" muestra un análisis de los estadisticos básicos del set que resulta de gran ayuda antes de continuar con los siguientes pasos de pre-postprocesado del dataframe.
 
 
-- COVID-19: para el caso de este dataset haremos uso de las funciones head() y tail()
+- COVID-19: para el caso de este dataset haremos uso de las funciones "head()" y "tail()"
 
 ```{r}
 head(covid_espana)
@@ -119,6 +116,7 @@ Extraídos a partir de la aplicación API disponible en la plataforma REData de 
 
 El conjunto de datos seleccionado mediante la request lanzada a la API se ha limitado a la evolución de la demanda para los meses de enero-febrero-marzo-abril en años 2019 y 2020.
 
+```{r eval=FALSE, include=TRUE}
 r = requests.get(https://apidatos.ree.es/es/datos/demanda/
 *indicamos los datos, en este caso evolución de demanda*
   **evolucion?**
@@ -128,7 +126,8 @@ r = requests.get(https://apidatos.ree.es/es/datos/demanda/
   **time_trunc=day**&
 *Zona geográfica sobre la que aplicaremos la extracción de datos.*
   **geo_limit=peninsular**&
-  **geo_ids=8741'**)
+  **geo_ids=8741**)
+```
 
 ## Evolución COVID-19 en España
 
@@ -138,7 +137,7 @@ En cuanto a la evolución de los datos sobre los casos del COVID-19 por comunida
 
 ## Ceros Elementos Vacíos
 
-En cuanto al tratamiento de elementos vacíos, se plantea en este apartado un barrido de los dataframes que se analizarán posteriormente a fin de identificar, o descartar la presencia de dichos elementos vacíos que puedan repercutir negativamente en la interpretación y tratamiento de los datos.
+Se plantea en este apartado el tratamiento de los "ceros" o "elementos vacíos" mediante un barrido de los dataframes, con el fin de identificar y posteriormente tratar dichos elementos. El objetivo último es evitar que estos registros repercutan negativamente en la interpretación y conclusiones que se extraigan a partir de estos datos.
 
 **Dataframes: elect2020 & elect 2019**
 
@@ -162,20 +161,20 @@ Vemos como estos dos dataframes no contienen en ningún caso elementos vacíos, 
 
 Procedemos a continuación a revisar el dataframe que contiene los casos de COVID-19. Se propone para ello una metodología ligeramente diferente a la mostrada para los datos de demanda eléctrica. 
 
-Primero lo que haremos es comprobar la presencia de valores vacios mediante el uso de la función summary() de las expresiones regulares de R, así como el uso de str() que nos dará información sobre que tipo de variables se encuentra en este set.
+Primero lo que haremos es comprobar la presencia de valores vacios mediante el uso de la función "summary()" de las expresiones regulares de R, así como el uso de "str()" que nos dará información sobre que tipo de variables se encuentra en este set.
 
 ```{r}
 summary(covid_espana)
 str(covid_espana)
 ```
 
-<span style="color:red"> *Alejandro, mira si te parece bien esta justificación de los valores nulos, sobre todo a la redacción. Creo qu está bien pero si ves cualquier cosa cambialo sin problema*</span>
+Vemos como el set de datos acumulados presenta al inicio un gran número de registros de tipo NaN, debido a que al inicio del proceso de registro de datos no existían aún casos positivos de COVID-19 en muchas de las CCAA de España. Con el avance del proceso de recogida de datos, y el incremento de casos en el acumulado, observamos como estos valores perdidos desaparecen en el dataframe, limitando la presencia de NaN´s en las variables de tipo int.
 
-Para este estudio en concreto se plantea la sustitución de valores nulos por ceros.
+Esta estructura resulta lógica y consistente con la naturaleza del set, datos dispuestos de forma acumulativa con unos primeros registros que resultarán nulos o bajos e irán incrementando a medida se avance en el proceso de regocida de datos. 
 
-Con lo visto en el apartado anterior, este set de datos acumulados presenta al inicio un gran número de registros de tipo NaN y esto es debido a que no existían casos positivos de COVID-19 en muchas de las CCAA de España. Además, al llamar a la función tail() hemos comprobado que al final del DataFrame no nos encontrabamos con ningún registro con valores perdidos y que al analizar el set con la función str, vemos que los valores NaN solo afectan a las variables de tipo int. Otra razón que nos lleva a tomar esta decisión es la propia naturaleza del set y es que en los casos de datos dispuestos de forma acumulativa, los primeros registros son siempre los más bajos o nulos. Por todo lo anterior, asumiremos que la sustitución de los mismos por 0s no supondrá error alguno en los análisis ni las representaciones gráficas posteriores.
+En base a lo expuesto, asumiremos que la sustitución de los mismos por ceros no supondrá error alguno en los análisis ni las representaciones gráficas posteriores. 
 
-Antes de sustituir los valores NAN, haremos una selección de las variables que realmente vamos a utilizar en el análisis.
+Antes de sustituir los valores NAN´s, haremos una selección de las variables que realmente vamos a utilizar en el análisis.
 
 ```{r echo=TRUE, message=FALSE, warning=FALSE}
 if(!require(dplyr)){
@@ -196,9 +195,9 @@ Volvemos a comprobar los valores perdidos:
 ```{r}
 summary(covid_espana)
 ```
-Entre las varables seleccionadas de interés para el análisis, vemos que unicamente identificamos la presencia de valores NaN en la variable de las PCR positivas.
+Entre las varables seleccionadas de interés para el análisis, vemos que únicamente identificamos la presencia de valores NaN´s en la variable de las PCR positivas.
 
-Procedemos con la sustitución de NANs por 0s.
+Procedemos con la sustitución de NANs por ceros.
 
 
 ```{r}
@@ -220,13 +219,16 @@ summary(covid_espana)
 Para la identificación de valores extremos en los dataframes objeto del análisis, procedemos a la presentación de los datos mediante un diagrama de cajas para la variable en cuestión.
 
 **elect_2019**
+
 ```{r }
 boxplot.stats(elect_2019$ev_demanda)$out
 ```
 ```{r , echo=FALSE}
 boxplot(elect_2019$ev_demanda,main="graph - ev_demanda2019")
 ```
+
 **elect_2020**
+
 ```{r }
 boxplot.stats(elect_2020$ev_demanda)$out
 ```
@@ -245,7 +247,7 @@ boxplot(covid_espana$PCR.,main="graph - Casos_COVID_ESPAÑA")
 ```
 
 
-Como se aprecia en el Boxplot de los casos acumulados del COVID por comunidades autónomas, existe una gran cantidad de valores extremos. Sin embargo, esto no quiere decir que se deban corregir, de hecho es bastante lógico que aparezcan por la gran cantidad de ceros que se encuentran en los primeros registros del DataFrame.
+Como se aprecia en el Boxplot de los casos acumulados del COVID por comunidades autónomas, existe una gran cantidad de valores extremos. Volviendo a la naturaleza del dataframe, esto resulta de nuevo lógico, consecuencia del gran volumen de datos nulos en los primeros registros el Dataframe. Al tratarse de datos acumulativos, estos valores extremos no se deberán eliminar, resultanto necesarios para el adecuado postproceso de los datos.
 
 # Análisis de los datos
 ## Selección de los grupos de datos
@@ -257,7 +259,7 @@ Una de las primera particularidades que vemos es que el año 2019 es bisiesto, c
 subset(elect_2020, day==29 & month==2)
 ```
 
-Identificada la fila que contiene los datos,  procedemos a eliminar dicho registro y combinar los datos de años 2019 y 2020 en un único dataframe.
+Identificada la fila que contiene los datos,  eliminando dicho registro y combinando los datos de años 2019 y 2020 en un único dataframe.
 
 ```{r }
 elect_2020_feb=elect_2020[-c(60),] #eliminamos registro del año bisiesto.
@@ -273,7 +275,7 @@ elect=elect[,!drop]
 En cuanto al DataFrame de los casos de COVID positivos lo que se hará es agrupar los casos según el mes y CCAA para poder compararlos con los plots del consumo eléctrico.
 
 
-```{r }
+```{r , warning=FALSE, message=FALSE,}
 library(lubridate) #librería para uso de la función month
 
 covid_espana$FECHAaux=dmy(covid_espana$FECHA) #conversión FECHA al formado correcto "/" --> "-"
@@ -281,179 +283,170 @@ covid_espana$month=month(covid_espana$FECHAaux) #generamos columna con meses
 covid_espana$day=day(covid_espana$FECHAaux) #generamos columna con días
 ```
 
-
-
 ## Comprobación de normalidad y homogeneidad de la varianza
 
-<span style="color:red"> *Alejandro, SI PUDIERAS AÑADIR ALGUNA CONCLUSIÓN A ESTE APARTADO SERÍA MEJOR QUE LA QUE PUEDO APORTAR YO, YA QUE HAS CURSADO ESTADÍSTICA*</span>
+Se evaluan en este apartado los datos contenidos en los dataframes, a fin de identificar si responden a una distribución de tipo normal. 
 
-Para el estudio de la normalidad de los datos, haremos uso de varias librerias que se cargan a continuación.
+Existen en R diferentes funciones o paquetes  que permitirán concluir si un cierto conjunto de datos se corresponde con una distribución normal. En este caso se ha optado por el test Shapiro-Wilk, función "shapiro.test" en R.
 
-```{r echo=TRUE, message=FALSE, warning=FALSE}
-if(!require(normtest)){
-    install.packages('normtest', repos='http://cran.us.r-project.org')
-    library(normtest)
-}
+Sin entrar en los detalles de la base estadística que soporta dichos test de normalidad, buscaremos resolver el siguiente contraste de hipótesis para la identificación de normalidad en la distribución de datos:
 
-```
+- H0 (hipótesis nula): La muestra proviene de una distribución normal.
+
+- H1 (hipótesis alternativa): La muestra no proviene de una distribución normal.
+
+El contraste de hipótesis se planteará típicamente para un nivel de significancia $\alpha=$0.05. Resultado de los test de normalidad, obtendremos un estadístico o p_value, mediante el cual concluiremos cual de nuestras hipótesis planteadas es la correcta apra el nivel de significancia escogido, siendo el criterio de decisión el siguiente:
+
+- p_value<$\alpha$: Rechazamos H0
+- p_value>=$\alpha$: H0 hipótesis válida.
+
+Aplicaremos los test de normalidad para conjuntos de datos de consumo eléctrico y casos de covid. Para este segundo grupo de datos, asumiendo un comportamiento similar de las distribuciones en las diferentes CCAA, limitaremos la aplicación de los test de normalidad a aquellas CCAA más afectadas.
 
 ```{r}
-library(normtest) #CON ESTA LIBRERÍA SE PUEDEN REALIZAR 5 PRUEBAS DE NORMALIDAD
-```
-
-Procedemos a crear los subconjuntos de datos para algunas de las CCAA más afectadas (Para los DataSets del consumo eléctrico no es necesario crear esos subconjuntos):
-
-```{r}
-#Crear sub-conjunto de datos
-AN <-subset(covid_espana,CCAA=="AN") #cuando se tiene la muestra de varios grupos es apropiado comprobar la normalidad por grupo.
-
+#Crear sub-conjunto de datos para CCAA más afectadas AN, CB, CM
+AN <-subset(covid_espana,CCAA=="AN") 
 CB <- subset(covid_espana,CCAA=="CB")
 CM <- subset(covid_espana,CCAA=="CM")
 
 ```
 
-- Hipótesis
+### Pruebas de normalidad para CCAA
+```{r }
+# Prueba de Shapiro-Wilk para AN
+shapiro.test(AN[,3])
+```
+```{r }
+# Prueba de Shapiro-Wilk para CB
+shapiro.test(CB[,3])
+```
+```{r }
+# Prueba de Shapiro-Wilk para CM
+shapiro.test(CM[,3])
+```
 
-H0: La muestra proviene de una distribución normal.
+Vemos como en los tres casos el p_value obtenido está por debajo del nivel de significancia fijado ($\alpha=0.05$). Rechazamos H0, las muestras no responden a una distribución normal.
 
-H1: La muestra no proviene de una distribución normal.
-
-Para pruebas de normalidad siempre se plantean así las hipótesis.
-
-- Nivel de Significancia
-
-El nivel de significancia que se trabajará es de 0.05. Alfa=0.05
-
-Criterio de Decisión
-
-Si P < Alfa Se rechaza Ho
-
-Si p >= Alfa No se rechaza Ho
-
-Histogramas para los subconjuntos creados y para los sets del consumo eléctrico:
-```{r}
+Historigramas presentados a continuación, confirmando que los datos no siguen una distribución normal.
+```{r }
 #Histogramas COVID
-hist(AN[,4])
-hist(CB[,4])
-hist(CM[,4])
-
-#Histogramas EV
-hist(elect_2019[,2])
-hist(elect_2020[,2])
-```
-
-Pruebas de normalidad:
-```{r}
-#Prueba de Anderson-Darling
-ad.test(AN[,4])
-ad.test(CB[,4])
-ad.test(CM[,4])
-
-ad.test(elect_2019[,2])
-ad.test(elect_2020[,2])
+hist(AN[,3],breaks=20,main="Casos AN")
+hist(CB[,3],breaks=20,main="Casos CB")
+hist(CM[,3],breaks=20,main="Casos CM")
 ```
 
 
+### Pruebas de normalidad para evolución demanda eléctrica
 
-```{r}
-#Prueba de Cramer-von Mises
-cvm.test(AN[,4])
-cvm.test(CB[,4])
-cvm.test(CM[,4])
-
-cvm.test(elect_2019[,2])
-cvm.test(elect_2020[,2])
+```{r }
+# Prueba de Shapiro-Wilk para AN
+shapiro.test(elect_2019[,2])
 ```
-```{r}
-# Prueba de Pearson (Chi cuadrado)
-pearson.test(AN[,4])
-pearson.test(CB[,4])
-pearson.test(CM[,4])
 
-pearson.test(elect_2019[,2])
-pearson.test(elect_2020[,2])
+```{r }
+# Prueba de Shapiro-Wilk para AN
+shapiro.test(elect_2020[,2])
 ```
+
+Para los datos de consumo electrico, vemos como los datos de 2019 si podríamos afrimar siguen una distribución normal ($p_value>\alpha=0.05), mientras que los datos de 2020 tras aplicarles el test de normalidad, dan como resultado un p_value por debajo del nivel de significancia. Rechazamos en este segundo caso H0, los datos de 2020 no responden a una distribución normal.
+
+Historigramas presentados a continuación para ambos sets de datos (2019 y 2020):
+
+```{r }
+hist(elect_2019[,2],breaks=20,main="Consumo Elect 2019")
+hist(elect_2020[,2],breaks=20,main="Consumo Elect 2020")
+```
+
 ## Pruebas Estadísticas
 
-<span style="color:red"> *SERGIO y Alejandro*</span>
+El planteamiento de pruebas estadísticas con los dataframes considerados en la práctica, a consideración de los alumnos, es ciertamente un poco limitado. El conjunto de datos está posiblemente más orientado al desarrollo de comparativas gráficas como las mostradas en el apartado 5 y al desarrollo de contraste de hipótesis. Es en este segundo punto en el que se ha centrado el presente apartado, en el planteamiento de un contraste de hipótesis sobre la media, a fin de concluir si la media de consumo eléctrico es mayor en año 2019 que en año 2020. Objetivo.
 
-Para realizar las pruebas estadísticas optaremos por dividir el conjunto de datos en un conjunto de entrenamiento y un conjunto de prueba. El conjunto de entrenamiento es el subconjunto del conjunto original de datos utilizado para construir un primer modelo; y el conjunto de prueba, el subconjunto del conjunto original de datos utilizado para evaluar la calidad del modelo. 
+Este contraste de hipótesis se construirá como un test unilateral, en el que los resultados válidos se sitúan a un lado de la igualdad para la hipótesis alternativa, con un contraste de dos muestras.
 
-Lo más correcto será utilizar un conjunto de datos diferente del que utilizamos para construir el árbol, es decir, un conjunto diferente del de entrenamiento. No hay ninguna proporción fijada con respecto al número relativo de componentes de cada subconjunto, pero la más utilizada acostumbra a ser 2/3 para el conjunto de entrenamiento y 1/3, para el conjunto de prueba.
+$$
+\left\{
+\begin{array}{ll}
+H_{0}: &  \mu_{2019}=\mu_{2020} \\
+H_{1}: & \mu_{2019} >\mu_{2020}
+\end{array}
+\right.
+$$
+Se plantea una resolución mediante el contraste de hipótisis con una fiabilidad de no rechazo de la hipótesis nula del 95% de nivel de confianza (alpha=0.05).
 
-Como hemos podido comprobar con anterioridad, nuestros conjuntos de datos se encontraban ordenados. Para realizar este tipo de prubas estadísticas, nos interesará que los mismos se encuentren desordenados. Para ello procederemos a guardarlos en unos nuevos sets con el prefijo random_.
+Vimos ya en el apartado anterior como los datos para el año 2020 no siguen exactamente una distribución normal. En este punto, haremos uso del Teorema del Límite Central, la distribución cuenta con un número suficientemente grande de muestras (n>30), para asumir que la media si responde a una distribución normal.
 
-```{r}
-# Desordenamos los sets
-set.seed(1)
-random_covid <- covid_espana[sample(nrow(covid_espana)),]
+```{r }
+qqnorm(elect_2020$ev_demanda)
+qqline(elect_2020$ev_demanda)
+```
 
-random_elec_2019 <- elect_2019[sample(nrow(elect_2019)),]
-random_elec_2020 <- elect_2020[sample(nrow(elect_2020)),]
+```{r }
+qqnorm(elect_2019$ev_demanda)
+qqline(elect_2019$ev_demanda)
+```
+
+Procedemos al cálculo del estadístico para el contraste de hipótesis sobre la media propuesto. Utilizaremos la función "myttest", tomada como referencia de la asignatura "Estadística Avanzada" de la UOC.
+
+```{r include=FALSE}
+library(kableExtra) #cargamos librería kableExtra para mostrar los datos en formato tabla.
+```
+
+```{r }
+myttest <- function( x1, x2, CL=0.95,equalvar=TRUE, alternative="bilateral" ){
+#z test 
+mean1<-mean(x1)
+n1<-length(x1)
+sd1<-sd(x1)
+mean2<-mean(x2)
+n2<-length(x2)
+sd2<-sd(x2)
+if (equalvar==TRUE){
+  s <-sqrt( ((n1-1)*sd1^2 + (n2-1)*sd2^2 )/(n1+n2-2) )   
+  Sb <- s*sqrt(1/n1 + 1/n2)
+  df<-n1+n2-2
+}
+else{ #equalvar==FALSE
+  Sb <- sqrt( sd1^2/n1 + sd2^2/n2 )
+  denom <- ( (sd1^2/n1)^2/(n1-1) +(sd2^2/n2)^2/(n2-2))
+  df <- ((sd1^2/n1 + sd2^2/n2)^2) / denom
+}
+alfa <- (1-CL)
+t<- (mean1-mean2) / Sb
+if (alternative=="bilateral"){
+  tcritical <- qnorm( alfa/2, lower.tail=FALSE ) #two sided
+  pvalue<-pnorm( abs(t), lower.tail=FALSE )*2 #two sided 
+} 
+else if (alternative=="less"){
+  tcritical <- qnorm( alfa, df, lower.tail=TRUE )
+  pvalue<-pnorm( t, df, lower.tail=TRUE ) 
+} 
+else{ #(alternative=="greater")
+  tcritical <- qnorm( alfa, lower.tail=FALSE ) 
+  pvalue<-pnorm( t, lower.tail=FALSE ) 
+} 
+#Guardamos en resultado en un data frame
+  info<-data.frame(t,tcritical,pvalue) 
+  info %>% kable() %>% kable_styling() 
+  return (info) 
+}
 ```
 
 
-La variable con la que clasificaremos el conjunto de datos del random_covid será la de las PCR que se encuentra en la columna 4 y para los sets del consumo eléctrico usaremos la ev_demanda que se encuentra en la posicion 2.
-
-<span style="color:red"> *Alejandro dale una vuelta a la parte de tus sets que no se muy bien como organizarlo*</span>
-
-```{r}
-set.seed(666)
-covid_y <- random_covid[,4] 
-covid_X <- random_covid[,6:9] 
-
+```{r }
+info<-myttest( elect_2019$ev_demanda, elect_2020$ev_demanda, alternative="greater" )
 ```
 
-Podemos elegir el subconjunto de entrenamiento y de prueba de diversas maneras. La primer opción consiste en calcular a cuántas filas corresponde dos tercios de los datos (2*1680/3=1120) y dividir "manualmente" el conjunto.
+**CONCLUSIONES**
 
-```{r}
-trainX <- covid_X[1:1120,]
-trainy <- covid_y[1:1120]
-testX <- covid_X[1120:1680,]
-testy <- covid_y[1120:1680]
-```
-
-En la segunda opción podemos crear directamente un rango.
-
-```{r}
-indexes = sample(1:nrow(random_covid), size=floor((2/3)*nrow(random_covid)))
-trainX<-covid_X[indexes,]
-trainy<-covid_y[indexes]
-testX<-covid_X[-indexes,]
-testy<-covid_y[-indexes]
-```
-
-
-Después de una extracción aleatoria de casos es altamente recomendable efectuar un análisis de datos mínimo para asegurarnos de no obtener clasificadores sesgados por los valores que contiene cada muestra. 
-
-
-<span style="color:red"> *Alejandro mira a ver si puedes dar con el error que me arrojan las siguientes lineas*</span>
-
-Se crea el árbol de decisión usando los datos de entrenamiento:
-
-```{r}
-model <- C50::C5.0(trainX, trainy,rules=TRUE )
-summary(model)
-```
-
-Cosas a revisar
-
-- Regresión logística
-$Ev_demanda(afectados covid)$
-threshold, demanda baja (por debajo de la media de 2019)
-
-- Regresión lineal
-$Ev_demanda(afectados covid)$
-
-- Contraste de hipótesis??
+El resultado de p-value=`r round(info$pvalue,digits=4)` está por debajo del nivel de alpha fijado (alpha=0.05), por lo que rechazaremos la hipótesis nula $H0$. La media de consumo energético en años 2019 es superior a la del año 2020.
 
 # Representación de los resultados
 
-**Evolución demanda 2019-2020**
+**Evolución demanda 2019-2020 (enero-febrero-marzo-abril)**
+
 ```{r , warning=FALSE}
-plot(elect$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+plot(elect$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (enero-feb-mar-abril)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
 lines(elect$ev_demanda2019,type="overplotted",pch=2,col="red")
-legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
 
 #particionamos el dataframe para el posterior tratamiento de los resultados por mes.
 elect_jan=elect[elect$month==1,]
@@ -464,42 +457,49 @@ elect_apr=elect[elect$month==4,]
 
 
 **Evolución demanda 2019-2020 (Enero)**
+
 ```{r , warning=FALSE}
-plot(elect_jan$day, elect_jan$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (January)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+plot(elect_jan$day, elect_jan$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (Enero)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
 lines(elect_jan$day, elect_jan$ev_demanda2019,type="overplotted",pch=2,col="red")
-legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
 ```
 
 
 **Evolución demanda 2019-2020 (Febrero)**
+
 ```{r , warning=FALSE}
-plot(elect_feb$day, elect_feb$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (February)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+plot(elect_feb$day, elect_feb$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (Febrero)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
 lines(elect_feb$day, elect_feb$ev_demanda2019,type="overplotted",pch=2,col="red")
-legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
 ```
 
 
 **Evolución demanda 2019-2020 (Marzo)**
+
 ```{r , warning=FALSE}
-plot(elect_mar$day, elect_mar$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (March)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+plot(elect_mar$day, elect_mar$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (Marzo)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
 lines(elect_mar$day, elect_mar$ev_demanda2019,type="overplotted",pch=2,col="red")
-legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
 ```
 
 **Evolución demanda 2019-2020 (Abril)**
+
 ```{r , warning=FALSE}
-plot(elect_apr$day, elect_apr$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (April)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+plot(elect_apr$day, elect_apr$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (Abril)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
 lines(elect_apr$day, elect_apr$ev_demanda2019,type="overplotted",pch=2,col="red")
-legend("topright",legend=c("2020","2019"),    pch=c(1,2),col=c("blue","red"))
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
 ```
 
 
 **Evolución Covid - Acumulado (MD-CT-PV)**
+
 ```{r , warning=FALSE}
 plot(covid_espana$PCR., type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="Test PCR",   main="Casos Covid (PCR)", ylim=c(min(covid_espana$PCR), max(covid_espana$PCR)))
 legend("topleft",legend="acumulado",    pch=c(1,2),col=c("blue"))
 ```
+
 **Evolución Covid - Acumulado **
+
 Representación de los resultados para un mejor entendimiento de los datos, limitado a Comunidad de MAdrid (MD), Cataluña (CT) y País Vasco (PV).
 
 ```{r , warning=FALSE}
@@ -525,7 +525,55 @@ ggplot(covid_espana_feb, aes(x=FECHA, y=PCR., group = CCAA, colour =CCAA )) +   
 ```
 
 # 6. Resolución del problema
-<span style="color:red"> *SERGIO y Alejandro*</span>
+
+En esta segunda práctica, orientada al entendimiento y análisis del impacto del Covid en el consumo energético, se ha acotado en mejor medida el estudio, con mayor volúmen de datos disponible (meses enero, febrero, marzo y abril).
+
+En lo que respecta al pre-proceso de datos, resaltar la integración de actividades de pre-procesado de datos por dos vías diferentes, una primera parte a través de los scripts definidos en python para la generación de los dataframes (cubierto en la Práctica 1), complementándose posteriormente con un tratamiento de los los mismos en R, proceso detallado en la presente práctica (Práctica 2).
+
+Concluido el postproceso de los datos, queda la pregunta de si realmente hemos sido capaces de proporcionar una respuesta al problema planteado: ¿Existe reducción en el consumo energíco como consecuencia del Covid19?. Podemos concluir en este punto que efectivamente la irrupción del virus en España ha tenido un impacto significativo en los resultados de consumo eléctrico, hecho sustentado en los siguientes puntos:
+
+**Comparativa gráfica**
+
+Volvemos en este punto a las comparativas gráficas presentadas en el apartado 5. Los consumos energéticos, para meses de enero y febrero, muestran tendencias muy similares, las cuales se mantienen incluso durante las primeras fases del mes de marzo. Sin embargo, es a finales de este mes, donde se muestra un descenso significativo del consumo energético, el cual se mantiene a lo largo del mes de abril.
+
+```{r echo=FALSE, warning=FALSE}
+plot(elect$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (enero-feb-mar-abril)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect$ev_demanda2019,type="overplotted",pch=2,col="red")
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
+
+#particionamos el dataframe para el posterior tratamiento de los resultados por mes.
+elect_jan=elect[elect$month==1,]
+elect_feb=elect[elect$month==2,]
+elect_mar=elect[elect$month==3,]
+elect_apr=elect[elect$month==4,]
+```
+
+
+```{r , echo=FALSE, warning=FALSE}
+plot(elect_mar$day, elect_mar$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (Marzo)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect_mar$day, elect_mar$ev_demanda2019,type="overplotted",pch=2,col="red")
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
+```
+
+```{r , echo=FALSE, warning=FALSE}
+plot(elect_apr$day, elect_apr$ev_demanda_2020, type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="ev-demanda",   main="Ev-demanda (Abril)", ylim=c(min(elect$ev_demanda_2020), max(elect$ev_demanda2019)))
+lines(elect_apr$day, elect_apr$ev_demanda2019,type="overplotted",pch=2,col="red")
+legend("topright",legend=c("2020","2019"),    pch=c(1,1),col=c("blue","red"))
+```
+
+Cruzando estos datos con la evolución de casos registrados en España, vemos como el descenso en consumo energético correla bastante bien con el punto en que la curva de contagios comienza a tomar su máxima pendiente.
+
+```{r , echo=FALSE, warning=FALSE}
+plot(covid_espana$PCR., type="overplotted",   pch=1, col="blue", xlab="Days",    ylab="Test PCR",   main="Casos Covid (PCR)", ylim=c(min(covid_espana$PCR), max(covid_espana$PCR)))
+legend("topleft",legend="acumulado",    pch=c(1,2),col=c("blue"))
+```
+
+**Contraste de hipótesis**
+
+La comparativa de consumo eléctrico medio entre años 2019 y 2020 llevado a cabo en el apartado 4, arroja similares conclusiones, confirmando que efectivamente entre ambos años el consumo eléctrico medio no es equivalente, siendo superior en el año 2019. Las conclusiones de este análisis no son vinculantes con el Covid19, es decir, el hecho de que el consumo sea diferente no quiere decir que la causa única sea la irrupción del virus en el mes de marzo del año 2020. Sin embargo, las conclusiones de este contraste de hipótesis son de utilizada para contruir la respuesta a la pregunta o problema planteado.
+
+
+
 
 
 
